@@ -1,0 +1,24 @@
+*** Begin Patch
+*** Update File: src/components/InviteUserPanel.jsx
+@@
+-import React, { useContext, useState } from 'react';
+-import AuthContext from '../context/AuthContext.jsx';
++import React, { useState } from 'react';
++import { useAuthApi } from '../context/authApi';
+@@
+-  const auth = useContext(AuthContext);
++  const auth = useAuthApi();
+@@
+-  const handleInvite = async () => {
+-    if (!auth || !auth.user) return;
+-    // previous usage: auth.user or auth.login
+-    await sendInvite({ userId: auth.user.id, email });
+-    setEmail('');
+-  };
++  const handleInvite = async () => {
++    if (!auth || !auth.isAuthenticated()) return;
++    const user = auth.getUser();
++    await sendInvite({ userId: user?.id, email });
++    setEmail('');
++  };
+*** End Patch

@@ -1,0 +1,11 @@
+*** Begin Patch
+*** Update File: src/components/NotificationsBell.jsx
+@@
+-import React, { useContext } from 'react';
+-import AuthContext from '../context/AuthContext.jsx';
++import React from 'react';
++import { useAuthApi } from '../context/authApi';
+@@
+-  const auth = useContext(AuthContext);
++  const auth = useAuthApi();
+*** End Patch
