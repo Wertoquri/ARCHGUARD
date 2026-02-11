@@ -1,0 +1,17 @@
+*** Begin Patch
+*** Add File: a/src/context/authApi.js
++import { useContext } from 'react';
++import AuthContext from './AuthContext.jsx';
++
++// Lightweight adapter exposing a minimal, stable API for consumers.
++export function useAuthApi() {
++  const ctx = useContext(AuthContext);
++  return {
++    getUser: () => ctx?.user ?? null,
++    login: (...args) => ctx?.login && ctx.login(...args),
++    logout: () => ctx?.logout && ctx.logout(),
++    isAuthenticated: () => !!ctx?.user
++  };
++}
++
+*** End Patch
