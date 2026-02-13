@@ -28,7 +28,22 @@
         <div>
           <button id="eval">Evaluate policy</button>
         </div>
+        <div id="violations" style="margin-top:8px"></div>
         <pre id="results" style="white-space:pre-wrap; background:#f6f8fa; padding:8px; border:1px solid #ddd; height:200px; overflow:auto"></pre>
+      </section>
+
+      <section>
+        <h2>Rule Editor</h2>
+        <div id="rule-editor"></div>
+        <div style="margin-top:8px">
+          <button id="add-rule">Add Rule</button>
+          <button id="apply-structured">Apply to YAML</button>
+        </div>
+        <div style="margin-top:12px">
+          <label>Branch name for PR: <input id="pr-branch" placeholder="policy-update-YYYYMMDD"/></label>
+          <label style="margin-left:12px">PR title: <input id="pr-title" placeholder="Update policy via UI"/></label>
+          <button id="save-pr">Save & Create PR</button>
+        </div>
       </section>
     </main>
 
