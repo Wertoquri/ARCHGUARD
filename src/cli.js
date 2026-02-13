@@ -28,8 +28,6 @@ if (!SEVERITY_LEVELS.includes(failOn)) {
   process.exit(2);
 }
 
-/* eslint-disable no-console */
-
 try {
   const report = await analyzeProject({
     projectRoot: options.project,

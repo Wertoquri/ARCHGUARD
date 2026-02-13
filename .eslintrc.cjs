@@ -21,6 +21,14 @@ module.exports = {
     'no-console': ['warn', { allow: ['warn', 'error'] }],
     'import/no-unresolved': 'off'
   },
+  overrides: [
+    {
+      files: ['src/cli.js'],
+      rules: {
+        'no-console': 'off'
+      }
+    }
+  ],
   settings: {
     'import/resolver': {
       node: { extensions: ['.js', '.jsx', '.ts', '.tsx'] }
