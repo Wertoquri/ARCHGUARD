@@ -1,0 +1,7 @@
+ARCHGUARD AI summary (structured findings only)
+Modules: 56, Edges: 86
+Core modules: 3, Cycles: 0
+Risk distribution: high 1, medium 1, low 54
+Top violations: 1
+- [medium] Fan-in 11 exceeds threshold 10
+Note: This summary is derived exclusively from findings.json data.

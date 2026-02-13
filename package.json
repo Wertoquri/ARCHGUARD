@@ -10,7 +10,7 @@
     "build": "node -e \"console.log('No build step for JS')\"",
     "start": "node src/cli.js",
     "dev": "node src/cli.js",
-    "lint": "echo \"No lint configured\"",
+    "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --max-warnings=0",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,md,css}\"",
     "prepare": "husky install",
     "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix",
