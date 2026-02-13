@@ -2,6 +2,8 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
+import { exec } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
@@ -44,6 +46,35 @@ app.post('/api/policy', (req, res) => {
   } catch (err) {
     return res.status(500).json({ error: 'failed to save', details: String(err) });
   }
+});
+
+// Evaluate policy by running the CLI. Enabled only when POLICY_UI_ENABLE_EVAL=1
+app.post('/api/evaluate', (req, res) => {
+  if (process.env.POLICY_UI_ENABLE_EVAL !== '1') {
+    return res.status(403).json({ error: 'Evaluation disabled on this server' });
+  }
+
+  const outDir = path.join(process.cwd(), 'tmp');
+  if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+  const outFile = path.join(outDir, `findings_ui_${Date.now()}.json`);
+
+  const cmd = `node ./src/cli.js --policy examples/policy.yaml --out ${outFile} --fail-on critical`;
+
+  exec(cmd, { cwd: process.cwd(), env: process.env }, (err, stdout, stderr) => {
+    if (err) {
+      // CLI may exit with non-zero when violations found; still attempt to read output
+    }
+    if (!fs.existsSync(outFile)) {
+      return res.status(500).json({ error: 'Analysis failed', stdout, stderr });
+    }
+    try {
+      const txt = fs.readFileSync(outFile, 'utf8');
+      const j = JSON.parse(txt);
+      return res.json({ ok: true, findings: j });
+    } catch (e) {
+      return res.status(500).json({ error: 'failed to read findings', details: String(e) });
+    }
+  });
 });
 
 app.listen(port, () => {

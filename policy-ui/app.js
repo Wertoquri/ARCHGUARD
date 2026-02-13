@@ -2,6 +2,8 @@ const loadBtn = document.getElementById('load');
 const downloadBtn = document.getElementById('download');
 const saveBtn = document.getElementById('save');
 const ta = document.getElementById('policy');
+const evalBtn = document.getElementById('eval');
+const results = document.getElementById('results');
 
 async function loadPolicy() {
   loadBtn.disabled = true;
@@ -54,6 +56,24 @@ async function savePolicy() {
 loadBtn.addEventListener('click', loadPolicy);
 downloadBtn.addEventListener('click', downloadPolicy);
 saveBtn.addEventListener('click', savePolicy);
+evalBtn.addEventListener('click', evaluatePolicy);
 
 // auto-load
 loadPolicy();
+
+async function evaluatePolicy() {
+  evalBtn.disabled = true;
+  evalBtn.textContent = 'Evaluating...';
+  results.textContent = 'Running analysis... (server must have POLICY_UI_ENABLE_EVAL=1)';
+  try {
+    const r = await fetch('/api/evaluate', { method: 'POST' });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || JSON.stringify(j));
+    results.textContent = JSON.stringify(j.findings, null, 2);
+  } catch (err) {
+    results.textContent = 'Evaluation failed: ' + err;
+  } finally {
+    evalBtn.disabled = false;
+    evalBtn.textContent = 'Evaluate policy';
+  }
+}
