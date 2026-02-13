@@ -1,6 +1,7 @@
 # ARCHGUARD — Architectural Policy & Risk Engine
 
 [![Archguard CI](https://github.com/Wertoquri/ARCHGUARD/actions/workflows/archguard.yml/badge.svg)](https://github.com/Wertoquri/ARCHGUARD/actions/workflows/archguard.yml)
+[![CI (lint & migration tests)](https://github.com/Wertoquri/ARCHGUARD/actions/workflows/ci.yml/badge.svg)](https://github.com/Wertoquri/ARCHGUARD/actions/workflows/ci.yml)
 
 ARCHGUARD is an architectural firewall for software systems. It analyzes source code dependencies, validates them against explicit architectural policies, and produces deterministic, CI-ready findings. AI explainability is optional and only consumes structured findings, never raw source code.
 
@@ -140,7 +141,12 @@ npm run ag -- --policy examples/policy.yaml --out findings_debug.json
 
 ## GitHub Actions example
 
-See [.github/workflows/archguard.yml](.github/workflows/archguard.yml)
+See the workflow definitions in `.github/workflows/`.
+
+- `archguard.yml` — full analysis runs for releases and scheduled jobs.
+- `ci.yml` — runs on pushes and pull requests; it includes a `lint` job and a `migration-tests` job that runs the dry-run/rollback Vitest test added to `test/dryrun_rollback.test.js`.
+
+You can view CI run details here: [.github/workflows/ci.yml](.github/workflows/ci.yml)
 
 ## Local development & debugging
 
