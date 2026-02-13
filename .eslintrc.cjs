@@ -1,0 +1,29 @@
+module.exports = {
+  root: true,
+  env: {
+    node: true,
+    es2021: true,
+    browser: true,
+  },
+  parserOptions: {
+    ecmaVersion: 2022,
+    sourceType: 'module',
+    ecmaFeatures: { jsx: true },
+  },
+  extends: [
+    'eslint:recommended',
+    'plugin:import/recommended',
+    'prettier'
+  ],
+  plugins: ['import'],
+  rules: {
+    'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+    'no-console': ['warn', { allow: ['warn', 'error'] }],
+    'import/no-unresolved': 'off'
+  },
+  settings: {
+    'import/resolver': {
+      node: { extensions: ['.js', '.jsx', '.ts', '.tsx'] }
+    }
+  }
+};
