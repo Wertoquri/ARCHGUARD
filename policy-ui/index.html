@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ARCHGUARD — Policy UI</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>ARCHGUARD — Policy Editor (Preview)</h1>
+      <p>Load, inspect, and download policy YAML. Edits are local (download to save).</p>
+    </header>
+
+    <main>
+      <section id="controls">
+        <button id="load">Load policy</button>
+        <button id="download">Download edited policy</button>
+      </section>
+
+      <section>
+        <textarea id="policy" spellcheck="false"></textarea>
+      </section>
+    </main>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
