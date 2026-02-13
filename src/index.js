@@ -1,14 +1,14 @@
-import path from "node:path";
-import { collectSourceFiles } from "./utils/fs.js";
-import { parseSourceFiles } from "./parser/astParser.js";
-import { DependencyGraph } from "./graph/graph.js";
-import { computeStronglyConnectedComponents } from "./graph/analysis.js";
-import { calculateMetrics } from "./metrics/metrics.js";
-import { loadPolicy, evaluatePolicy } from "./policy/policyEngine.js";
-import { buildReport, writeReport } from "./report/report.js";
-import { writeAiSummary } from "./ai/explain.js";
+import path from 'node:path';
+import { collectSourceFiles } from './utils/fs.js';
+import { parseSourceFiles } from './parser/astParser.js';
+import { DependencyGraph } from './graph/graph.js';
+import { computeStronglyConnectedComponents } from './graph/analysis.js';
+import { calculateMetrics } from './metrics/metrics.js';
+import { loadPolicy, evaluatePolicy } from './policy/policyEngine.js';
+import { buildReport, writeReport } from './report/report.js';
+import { writeAiSummary } from './ai/explain.js';
 
-export const SEVERITY_LEVELS = ["low", "medium", "high", "critical"];
+export const SEVERITY_LEVELS = ['low', 'medium', 'high', 'critical'];
 
 export async function analyzeProject(options) {
   const projectRoot = path.resolve(options.projectRoot);
@@ -40,5 +40,7 @@ export async function analyzeProject(options) {
 
 export function shouldFail(report, failOn) {
   const thresholdIndex = SEVERITY_LEVELS.indexOf(failOn);
-  return report.violations.some((violation) => SEVERITY_LEVELS.indexOf(violation.severity) >= thresholdIndex);
+  return report.violations.some(
+    (violation) => SEVERITY_LEVELS.indexOf(violation.severity) >= thresholdIndex
+  );
 }

@@ -10,6 +10,6 @@ export function useAuthApi() {
     getUser: () => ctx?.user ?? null,
     login: (...args) => ctx?.login && ctx.login(...args),
     logout: () => ctx?.logout && ctx.logout(),
-    isAuthenticated: () => !!ctx?.user
+    isAuthenticated: () => !!ctx?.user,
   };
 }

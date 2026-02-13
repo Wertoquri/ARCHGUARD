@@ -13,8 +13,8 @@ vi.mock('react', () => {
     useContext: () => ({
       user: { id: 'u1', name: 'Alice' },
       login: vi.fn(),
-      logout: vi.fn()
-    })
+      logout: vi.fn(),
+    }),
   };
 });
 

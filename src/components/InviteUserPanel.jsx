@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuthApi } from '../context/authApi';
 
 // Minimal placeholder for sendInvite; replace with real implementation.
 async function sendInvite({ userId, email }) {
   // implement actual invite call in real project
-  return Promise.resolve({ ok: true });
+  return Promise.resolve({ ok: true, userId, email });
 }
 
 export default function InviteUserPanel() {
@@ -20,7 +20,11 @@ export default function InviteUserPanel() {
 
   return (
     <div>
-      <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="user@example.com" />
+      <input
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="user@example.com"
+      />
       <button onClick={handleInvite}>Invite</button>
     </div>
   );

@@ -1,27 +1,27 @@
-import fs from "node:fs";
-import * as minimatchPkg from "minimatch";
+import fs from 'node:fs';
+import * as minimatchPkg from 'minimatch';
 const minimatch = minimatchPkg?.default ?? minimatchPkg?.minimatch ?? minimatchPkg;
-import YAML from "yaml";
+import YAML from 'yaml';
 
 const DEFAULT_SEVERITY = {
-  forbidden_dependency: "high",
-  max_fan_in: "medium",
-  max_fan_out: "medium",
-  no_cycles: "high",
-  layer_matrix: "high"
+  forbidden_dependency: 'high',
+  max_fan_in: 'medium',
+  max_fan_out: 'medium',
+  no_cycles: 'high',
+  layer_matrix: 'high',
 };
 
 export function loadPolicy(policyPath) {
-  const content = fs.readFileSync(policyPath, "utf8");
+  const content = fs.readFileSync(policyPath, 'utf8');
   const parsed = YAML.parse(content);
   if (!parsed || !Array.isArray(parsed.rules)) {
-    throw new Error("Invalid policy file: rules not found");
+    throw new Error('Invalid policy file: rules not found');
   }
   return parsed;
 }
 
 function normalizePattern(pattern) {
-  if (!pattern.includes("/") && !pattern.includes("*")) {
+  if (!pattern.includes('/') && !pattern.includes('*')) {
     return `${pattern}/**`;
   }
   return pattern;
@@ -59,11 +59,11 @@ export function evaluatePolicy(policy, graph, moduleMetrics, inCycle) {
   const globalExemptions = rawExemptions
     .map((e) => {
       if (!e) return null;
-      if (typeof e === "string") return { pattern: e, reason: "" };
-      return { pattern: e.pattern || e.module || "", reason: e.reason || e.comment || "" };
+      if (typeof e === 'string') return { pattern: e, reason: '' };
+      return { pattern: e.pattern || e.module || '', reason: e.reason || e.comment || '' };
     })
     .filter(Boolean);
-  
+
   for (const rule of policy.rules) {
     const matchesAny = (patterns, moduleId) => {
       if (!patterns || !Array.isArray(patterns)) return false;
@@ -100,7 +100,7 @@ export function evaluatePolicy(policy, graph, moduleMetrics, inCycle) {
       return false;
     };
 
-    if (rule.type === "forbidden_dependency") {
+    if (rule.type === 'forbidden_dependency') {
       if (!rule.from || !rule.to) {
         continue;
       }
@@ -113,14 +113,14 @@ export function evaluatePolicy(policy, graph, moduleMetrics, inCycle) {
             severity: rule.severity ?? DEFAULT_SEVERITY[rule.type],
             from: edge.from,
             to: edge.to,
-            message: rule.message ?? `Dependency from ${edge.from} to ${edge.to} is forbidden`
+            message: rule.message ?? `Dependency from ${edge.from} to ${edge.to} is forbidden`,
           });
         }
       }
     }
     // forbidden_dependency handled above with exemptions; skip duplicate handling
 
-    if (rule.type === "max_fan_in") {
+    if (rule.type === 'max_fan_in') {
       const threshold = rule.threshold ?? 0;
       for (const mod of moduleMetrics) {
         if (mod.fanIn > threshold) {
@@ -130,13 +130,13 @@ export function evaluatePolicy(policy, graph, moduleMetrics, inCycle) {
             type: rule.type,
             severity: rule.severity ?? DEFAULT_SEVERITY[rule.type],
             moduleId: mod.id,
-            message: rule.message ?? `Fan-in ${mod.fanIn} exceeds threshold ${threshold}`
+            message: rule.message ?? `Fan-in ${mod.fanIn} exceeds threshold ${threshold}`,
           });
         }
       }
     }
 
-    if (rule.type === "max_fan_out") {
+    if (rule.type === 'max_fan_out') {
       const threshold = rule.threshold ?? 0;
       for (const mod of moduleMetrics) {
         if (mod.fanOut > threshold) {
@@ -146,13 +146,13 @@ export function evaluatePolicy(policy, graph, moduleMetrics, inCycle) {
             type: rule.type,
             severity: rule.severity ?? DEFAULT_SEVERITY[rule.type],
             moduleId: mod.id,
-            message: rule.message ?? `Fan-out ${mod.fanOut} exceeds threshold ${threshold}`
+            message: rule.message ?? `Fan-out ${mod.fanOut} exceeds threshold ${threshold}`,
           });
         }
       }
     }
 
-    if (rule.type === "no_cycles") {
+    if (rule.type === 'no_cycles') {
       if (inCycle.size > 0) {
         for (const moduleId of Array.from(inCycle).sort()) {
           if (isExemptModule(rule, moduleId)) continue;
@@ -161,13 +161,13 @@ export function evaluatePolicy(policy, graph, moduleMetrics, inCycle) {
             type: rule.type,
             severity: rule.severity ?? DEFAULT_SEVERITY[rule.type],
             moduleId,
-            message: rule.message ?? `Module ${moduleId} participates in a dependency cycle`
+            message: rule.message ?? `Module ${moduleId} participates in a dependency cycle`,
           });
         }
       }
     }
 
-    if (rule.type === "layer_matrix") {
+    if (rule.type === 'layer_matrix') {
       const layers = rule.layers ?? {};
       const allowPairs = normalizeAllowedPairs(rule.allow);
       const allowSameLayer = rule.allowSameLayer ?? true;
@@ -189,8 +189,9 @@ export function evaluatePolicy(policy, graph, moduleMetrics, inCycle) {
             severity: rule.severity ?? DEFAULT_SEVERITY[rule.type],
             from: edge.from,
             to: edge.to,
-            message: rule.message
-              ?? `Layer dependency ${fromLayer} -> ${toLayer} is not allowed for ${edge.from} -> ${edge.to}`
+            message:
+              rule.message ??
+              `Layer dependency ${fromLayer} -> ${toLayer} is not allowed for ${edge.from} -> ${edge.to}`,
           });
         }
       }
@@ -199,7 +200,7 @@ export function evaluatePolicy(policy, graph, moduleMetrics, inCycle) {
 
   return violations.sort((a, b) => {
     if (a.ruleId === b.ruleId) {
-      return (a.moduleId ?? a.from ?? "").localeCompare(b.moduleId ?? b.from ?? "");
+      return (a.moduleId ?? a.from ?? '').localeCompare(b.moduleId ?? b.from ?? '');
     }
     return a.ruleId.localeCompare(b.ruleId);
   });

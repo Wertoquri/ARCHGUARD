@@ -1,5 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
+import fs from 'node:fs';
+import path from 'node:path';
 
 export function buildReport(globalMetrics, riskSummary, moduleMetrics, violations) {
   return {
@@ -7,12 +7,12 @@ export function buildReport(globalMetrics, riskSummary, moduleMetrics, violation
     globalMetrics,
     riskSummary,
     moduleMetrics,
-    violations
+    violations,
   };
 }
 
 export function writeReport(report, outputPath) {
   const dir = path.dirname(outputPath);
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(outputPath, JSON.stringify(report, null, 2), "utf8");
+  fs.writeFileSync(outputPath, JSON.stringify(report, null, 2), 'utf8');
 }

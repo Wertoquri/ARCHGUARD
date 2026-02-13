@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { Command } from "commander";
-import { analyzeProject, shouldFail, SEVERITY_LEVELS } from "./index.js";
+import { Command } from 'commander';
+import { analyzeProject, shouldFail, SEVERITY_LEVELS } from './index.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,13 +8,13 @@ import { fileURLToPath } from 'url';
 const program = new Command();
 
 program
-  .name("archguard")
-  .description("ARCHGUARD - Architectural Policy & Risk Engine")
-  .option("-p, --project <path>", "Project root directory", ".")
-  .requiredOption("-r, --policy <file>", "Policy YAML file")
-  .option("-o, --out <file>", "Output findings.json path", "findings.json")
-  .option("--ai-summary <file>", "Write AI summary to a text file")
-  .option("--fail-on <severity>", "Fail on severity (low|medium|high|critical)", "high")
+  .name('archguard')
+  .description('ARCHGUARD - Architectural Policy & Risk Engine')
+  .option('-p, --project <path>', 'Project root directory', '.')
+  .requiredOption('-r, --policy <file>', 'Policy YAML file')
+  .option('-o, --out <file>', 'Output findings.json path', 'findings.json')
+  .option('--ai-summary <file>', 'Write AI summary to a text file')
+  .option('--fail-on <severity>', 'Fail on severity (low|medium|high|critical)', 'high')
   .option('--dry-run', 'Generate migration bundle from docs/pr_diffs (no changes)')
   .option('--patch-out <dir>', 'Directory to write migration bundle', 'migration_bundle')
   .option('--apply-patch', 'Apply migration files to the target project (creates .bak backups)')
@@ -24,9 +24,11 @@ const options = program.opts();
 const failOn = options.failOn;
 
 if (!SEVERITY_LEVELS.includes(failOn)) {
-  console.error("Invalid --fail-on value. Use low, medium, high, or critical.");
+  console.error('Invalid --fail-on value. Use low, medium, high, or critical.');
   process.exit(2);
 }
+
+/* eslint-disable no-console */
 
 try {
   const report = await analyzeProject({
@@ -34,7 +36,7 @@ try {
     policyPath: options.policy,
     outputPath: options.out,
     failOn,
-    aiSummaryPath: options.aiSummary
+    aiSummaryPath: options.aiSummary,
   });
 
   // Migration bundle generation / apply
@@ -99,7 +101,7 @@ try {
   }
 
   if (shouldFail(report, failOn)) {
-    console.error("Policy violations exceed configured threshold.");
+    console.error('Policy violations exceed configured threshold.');
     process.exit(1);
   }
 } catch (error) {
