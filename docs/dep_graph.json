@@ -1,0 +1,188 @@
+{
+  "nodes": [
+    {
+      "id": "src/cli.js",
+      "label": "cli.js",
+      "fanIn": 0,
+      "fanOut": 1,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "cli.js\nfanIn: 0 fanOut: 1"
+    },
+    {
+      "id": "src/index.js",
+      "label": "index.js",
+      "fanIn": 1,
+      "fanOut": 8,
+      "color": "#ff9f1c",
+      "group": "src",
+      "title": "index.js\nfanIn: 1 fanOut: 8"
+    },
+    {
+      "id": "src/ai/explain.js",
+      "label": "explain.js",
+      "fanIn": 1,
+      "fanOut": 0,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "explain.js\nfanIn: 1 fanOut: 0"
+    },
+    {
+      "id": "src/components/InviteUserPanel.jsx",
+      "label": "InviteUserPanel.jsx",
+      "fanIn": 0,
+      "fanOut": 1,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "InviteUserPanel.jsx\nfanIn: 0 fanOut: 1"
+    },
+    {
+      "id": "src/context/authApi.js",
+      "label": "authApi.js",
+      "fanIn": 2,
+      "fanOut": 1,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "authApi.js\nfanIn: 2 fanOut: 1"
+    },
+    {
+      "id": "src/context/AuthContext.jsx",
+      "label": "AuthContext.jsx",
+      "fanIn": 1,
+      "fanOut": 0,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "AuthContext.jsx\nfanIn: 1 fanOut: 0"
+    },
+    {
+      "id": "src/graph/analysis.js",
+      "label": "analysis.js",
+      "fanIn": 2,
+      "fanOut": 0,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "analysis.js\nfanIn: 2 fanOut: 0"
+    },
+    {
+      "id": "src/graph/graph.js",
+      "label": "graph.js",
+      "fanIn": 1,
+      "fanOut": 0,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "graph.js\nfanIn: 1 fanOut: 0"
+    },
+    {
+      "id": "src/metrics/metrics.js",
+      "label": "metrics.js",
+      "fanIn": 1,
+      "fanOut": 1,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "metrics.js\nfanIn: 1 fanOut: 1"
+    },
+    {
+      "id": "src/parser/astParser.js",
+      "label": "astParser.js",
+      "fanIn": 1,
+      "fanOut": 1,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "astParser.js\nfanIn: 1 fanOut: 1"
+    },
+    {
+      "id": "src/policy/policyEngine.js",
+      "label": "policyEngine.js",
+      "fanIn": 1,
+      "fanOut": 0,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "policyEngine.js\nfanIn: 1 fanOut: 0"
+    },
+    {
+      "id": "src/report/report.js",
+      "label": "report.js",
+      "fanIn": 1,
+      "fanOut": 0,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "report.js\nfanIn: 1 fanOut: 0"
+    },
+    {
+      "id": "src/utils/fs.js",
+      "label": "fs.js",
+      "fanIn": 2,
+      "fanOut": 0,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "fs.js\nfanIn: 2 fanOut: 0"
+    },
+    {
+      "id": "src/context/__tests__/authApi.test.js",
+      "label": "authApi.test.js",
+      "fanIn": 0,
+      "fanOut": 1,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "authApi.test.js\nfanIn: 0 fanOut: 1"
+    }
+  ],
+  "edges": [
+    {
+      "from": "src/cli.js",
+      "to": "src/index.js"
+    },
+    {
+      "from": "src/index.js",
+      "to": "src/utils/fs.js"
+    },
+    {
+      "from": "src/index.js",
+      "to": "src/parser/astParser.js"
+    },
+    {
+      "from": "src/index.js",
+      "to": "src/graph/graph.js"
+    },
+    {
+      "from": "src/index.js",
+      "to": "src/graph/analysis.js"
+    },
+    {
+      "from": "src/index.js",
+      "to": "src/metrics/metrics.js"
+    },
+    {
+      "from": "src/index.js",
+      "to": "src/policy/policyEngine.js"
+    },
+    {
+      "from": "src/index.js",
+      "to": "src/report/report.js"
+    },
+    {
+      "from": "src/index.js",
+      "to": "src/ai/explain.js"
+    },
+    {
+      "from": "src/components/InviteUserPanel.jsx",
+      "to": "src/context/authApi.js"
+    },
+    {
+      "from": "src/context/authApi.js",
+      "to": "src/context/AuthContext.jsx"
+    },
+    {
+      "from": "src/metrics/metrics.js",
+      "to": "src/graph/analysis.js"
+    },
+    {
+      "from": "src/parser/astParser.js",
+      "to": "src/utils/fs.js"
+    },
+    {
+      "from": "src/context/__tests__/authApi.test.js",
+      "to": "src/context/authApi.js"
+    }
+  ]
+}

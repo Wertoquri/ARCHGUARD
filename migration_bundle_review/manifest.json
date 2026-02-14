@@ -1,0 +1,44 @@
+[
+  {
+    "file": "src/context/authApi.js",
+    "src": "D:\\WEB\\ARCHGUARD\\src\\context\\authApi.js",
+    "dest": "D:\\WEB\\ARCHGUARD\\migration_bundle_review\\src\\context\\authApi.js",
+    "exists": true
+  },
+  {
+    "file": "src/components/InviteUserPanel.jsx",
+    "src": "D:\\WEB\\ARCHGUARD\\src\\components\\InviteUserPanel.jsx",
+    "dest": "D:\\WEB\\ARCHGUARD\\migration_bundle_review\\src\\components\\InviteUserPanel.jsx",
+    "exists": true
+  },
+  {
+    "file": "src/components/Dashboard.jsx",
+    "src": "D:\\WEB\\ARCHGUARD\\src\\components\\Dashboard.jsx",
+    "dest": "D:\\WEB\\ARCHGUARD\\migration_bundle_review\\src\\components\\Dashboard.jsx",
+    "exists": true
+  },
+  {
+    "file": "src/components/Login.jsx",
+    "src": "D:\\WEB\\ARCHGUARD\\src\\components\\Login.jsx",
+    "dest": "D:\\WEB\\ARCHGUARD\\migration_bundle_review\\src\\components\\Login.jsx",
+    "exists": true
+  },
+  {
+    "file": "src/components/MembersPanel.jsx",
+    "src": "D:\\WEB\\ARCHGUARD\\src\\components\\MembersPanel.jsx",
+    "dest": "D:\\WEB\\ARCHGUARD\\migration_bundle_review\\src\\components\\MembersPanel.jsx",
+    "exists": true
+  },
+  {
+    "file": "src/components/NotificationsBell.jsx",
+    "src": "D:\\WEB\\ARCHGUARD\\src\\components\\NotificationsBell.jsx",
+    "dest": "D:\\WEB\\ARCHGUARD\\migration_bundle_review\\src\\components\\NotificationsBell.jsx",
+    "exists": true
+  },
+  {
+    "file": "src/components/ProfileMenu.jsx",
+    "src": "D:\\WEB\\ARCHGUARD\\src\\components\\ProfileMenu.jsx",
+    "dest": "D:\\WEB\\ARCHGUARD\\migration_bundle_review\\src\\components\\ProfileMenu.jsx",
+    "exists": true
+  }
+]

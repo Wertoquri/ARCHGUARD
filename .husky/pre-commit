@@ -1,0 +1,4 @@
+#!/bin/sh
+. "$PWD/.husky/_/husky.sh"
+
+npx --no-install lint-staged

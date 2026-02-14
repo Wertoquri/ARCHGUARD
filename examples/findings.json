@@ -1,0 +1,62 @@
+{
+  "generatedAt": "2026-02-11T12:00:00.000Z",
+  "globalMetrics": {
+    "totalModules": 5,
+    "totalEdges": 6,
+    "avgInstability": 0.42,
+    "cycleCount": 2,
+    "coreModules": 1
+  },
+  "riskSummary": {
+    "highRiskModules": 1,
+    "mediumRiskModules": 2,
+    "lowRiskModules": 2
+  },
+  "moduleMetrics": [
+    {
+      "id": "domain/order/service.ts",
+      "loc": 220,
+      "fanIn": 8,
+      "fanOut": 2,
+      "instability": 0.2,
+      "inCycle": false,
+      "changeRiskScore": 71,
+      "isCoreModule": true
+    },
+    {
+      "id": "infrastructure/db/repo.ts",
+      "loc": 180,
+      "fanIn": 2,
+      "fanOut": 13,
+      "instability": 0.8667,
+      "inCycle": true,
+      "changeRiskScore": 78,
+      "isCoreModule": false
+    }
+  ],
+  "violations": [
+    {
+      "ruleId": "R-001",
+      "severity": "high",
+      "type": "forbidden_dependency",
+      "from": "domain/order/service.ts",
+      "to": "infrastructure/db/repo.ts",
+      "message": "Dependency from domain/order/service.ts to infrastructure/db/repo.ts is forbidden"
+    },
+    {
+      "ruleId": "R-004",
+      "severity": "medium",
+      "type": "max_fan_out",
+      "moduleId": "infrastructure/db/repo.ts",
+      "message": "Fan-out 13 exceeds threshold 12"
+    },
+    {
+      "ruleId": "R-005",
+      "severity": "high",
+      "type": "layer_matrix",
+      "from": "domain/order/service.ts",
+      "to": "infrastructure/db/repo.ts",
+      "message": "Layer dependency domain -> infrastructure is not allowed for domain/order/service.ts -> infrastructure/db/repo.ts"
+    }
+  ]
+}

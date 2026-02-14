@@ -1,0 +1,588 @@
+{
+  "generatedAt": "2026-02-11T19:47:16.429Z",
+  "globalMetrics": {
+    "totalModules": 57,
+    "totalEdges": 86,
+    "avgInstability": 0.3481,
+    "cycleCount": 0,
+    "coreModules": 3
+  },
+  "riskSummary": {
+    "highRiskModules": 1,
+    "mediumRiskModules": 1,
+    "lowRiskModules": 55
+  },
+  "moduleMetrics": [
+    {
+      "id": "backend/controllers/activityController.js",
+      "loc": 114,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 5,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/controllers/authController.js",
+      "loc": 285,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 13,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/controllers/avatarController.js",
+      "loc": 59,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 3,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/controllers/invitationsController.js",
+      "loc": 99,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 4,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/controllers/membersController.js",
+      "loc": 26,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 1,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/controllers/messagesController.js",
+      "loc": 68,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 3,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/controllers/notificationsController.js",
+      "loc": 85,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 4,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/controllers/permissionsController.js",
+      "loc": 69,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 3,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/controllers/projectController.js",
+      "loc": 104,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 5,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/controllers/taskAttachmentsController.js",
+      "loc": 220,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 10,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/controllers/taskController.js",
+      "loc": 228,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 10,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/db.js",
+      "loc": 32,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 1,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/helpers/notifications.js",
+      "loc": 39,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 2,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/middleware/authenticate.js",
+      "loc": 15,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 1,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/routes/authRoutes.js",
+      "loc": 35,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 2,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/routes/notificationsRoutes.js",
+      "loc": 12,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 1,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/routes/projectRoutes.js",
+      "loc": 66,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 3,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/routes/taskRoutes.js",
+      "loc": 34,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 2,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/scripts/run-migrations.js",
+      "loc": 48,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 2,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/scripts/testEmail.js",
+      "loc": 39,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 2,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/server.js",
+      "loc": 162,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 7,
+      "isCoreModule": false
+    },
+    {
+      "id": "backend/utils/emailService.js",
+      "loc": 82,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 4,
+      "isCoreModule": false
+    },
+    {
+      "id": "eslint.config.js",
+      "loc": 30,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 1,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/api.js",
+      "loc": 301,
+      "fanIn": 15,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 47,
+      "isCoreModule": true
+    },
+    {
+      "id": "src/App.js",
+      "loc": 22,
+      "fanIn": 0,
+      "fanOut": 3,
+      "instability": 1,
+      "inCycle": false,
+      "changeRiskScore": 1,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/App.jsx",
+      "loc": 41,
+      "fanIn": 1,
+      "fanOut": 7,
+      "instability": 0.875,
+      "inCycle": false,
+      "changeRiskScore": 4,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/auth.js",
+      "loc": 45,
+      "fanIn": 1,
+      "fanOut": 1,
+      "instability": 0.5,
+      "inCycle": false,
+      "changeRiskScore": 4,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/CreateProject.jsx",
+      "loc": 131,
+      "fanIn": 0,
+      "fanOut": 1,
+      "instability": 1,
+      "inCycle": false,
+      "changeRiskScore": 6,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/CreateTask.jsx",
+      "loc": 139,
+      "fanIn": 0,
+      "fanOut": 2,
+      "instability": 1,
+      "inCycle": false,
+      "changeRiskScore": 6,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/Dashboard.jsx",
+      "loc": 283,
+      "fanIn": 2,
+      "fanOut": 12,
+      "instability": 0.8571,
+      "inCycle": false,
+      "changeRiskScore": 17,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/Footer.jsx",
+      "loc": 19,
+      "fanIn": 1,
+      "fanOut": 1,
+      "instability": 0.5,
+      "inCycle": false,
+      "changeRiskScore": 3,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/InvitationsBell.jsx",
+      "loc": 136,
+      "fanIn": 1,
+      "fanOut": 4,
+      "instability": 0.8,
+      "inCycle": false,
+      "changeRiskScore": 8,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/InviteUserPanel.jsx",
+      "loc": 28,
+      "fanIn": 1,
+      "fanOut": 1,
+      "instability": 0.5,
+      "inCycle": false,
+      "changeRiskScore": 4,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/Kanban.jsx",
+      "loc": 504,
+      "fanIn": 1,
+      "fanOut": 4,
+      "instability": 0.8,
+      "inCycle": false,
+      "changeRiskScore": 25,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/Login.jsx",
+      "loc": 121,
+      "fanIn": 2,
+      "fanOut": 5,
+      "instability": 0.7143,
+      "inCycle": false,
+      "changeRiskScore": 10,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/MembersPanel.jsx",
+      "loc": 193,
+      "fanIn": 1,
+      "fanOut": 2,
+      "instability": 0.6667,
+      "inCycle": false,
+      "changeRiskScore": 11,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/NotificationCard.jsx",
+      "loc": 35,
+      "fanIn": 1,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 4,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/NotificationsBell.jsx",
+      "loc": 229,
+      "fanIn": 1,
+      "fanOut": 5,
+      "instability": 0.8333,
+      "inCycle": false,
+      "changeRiskScore": 12,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/ProfileMenu.jsx",
+      "loc": 103,
+      "fanIn": 1,
+      "fanOut": 4,
+      "instability": 0.8,
+      "inCycle": false,
+      "changeRiskScore": 7,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/ProjectCard.jsx",
+      "loc": 49,
+      "fanIn": 1,
+      "fanOut": 2,
+      "instability": 0.6667,
+      "inCycle": false,
+      "changeRiskScore": 4,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/ProjectChat.jsx",
+      "loc": 244,
+      "fanIn": 1,
+      "fanOut": 3,
+      "instability": 0.75,
+      "inCycle": false,
+      "changeRiskScore": 13,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/ProjectInviteCard.jsx",
+      "loc": 54,
+      "fanIn": 2,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 7,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/ProjectModal.jsx",
+      "loc": 151,
+      "fanIn": 1,
+      "fanOut": 2,
+      "instability": 0.6667,
+      "inCycle": false,
+      "changeRiskScore": 9,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/ProjectPage.jsx",
+      "loc": 493,
+      "fanIn": 1,
+      "fanOut": 6,
+      "instability": 0.8571,
+      "inCycle": false,
+      "changeRiskScore": 24,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/Register.jsx",
+      "loc": 197,
+      "fanIn": 2,
+      "fanOut": 4,
+      "instability": 0.6667,
+      "inCycle": false,
+      "changeRiskScore": 13,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/SettingsMenu.jsx",
+      "loc": 162,
+      "fanIn": 1,
+      "fanOut": 3,
+      "instability": 0.75,
+      "inCycle": false,
+      "changeRiskScore": 9,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/tasks.js",
+      "loc": 37,
+      "fanIn": 0,
+      "fanOut": 1,
+      "instability": 1,
+      "inCycle": false,
+      "changeRiskScore": 2,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/TasksModal.jsx",
+      "loc": 676,
+      "fanIn": 1,
+      "fanOut": 4,
+      "instability": 0.8,
+      "inCycle": false,
+      "changeRiskScore": 32,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/Toast.jsx",
+      "loc": 19,
+      "fanIn": 2,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 5,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/VerifyEmail.jsx",
+      "loc": 189,
+      "fanIn": 2,
+      "fanOut": 2,
+      "instability": 0.5,
+      "inCycle": false,
+      "changeRiskScore": 13,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/context/authApi.js",
+      "loc": 21,
+      "fanIn": 10,
+      "fanOut": 1,
+      "instability": 0.0909,
+      "inCycle": false,
+      "changeRiskScore": 24,
+      "isCoreModule": true
+    },
+    {
+      "id": "src/context/AuthContext.jsx",
+      "loc": 120,
+      "fanIn": 3,
+      "fanOut": 1,
+      "instability": 0.25,
+      "inCycle": false,
+      "changeRiskScore": 12,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/context/I18nContext.jsx",
+      "loc": 579,
+      "fanIn": 22,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 76,
+      "isCoreModule": true
+    },
+    {
+      "id": "src/main.jsx",
+      "loc": 20,
+      "fanIn": 0,
+      "fanOut": 3,
+      "instability": 1,
+      "inCycle": false,
+      "changeRiskScore": 1,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/pages/LoginPage.js",
+      "loc": 18,
+      "fanIn": 0,
+      "fanOut": 2,
+      "instability": 1,
+      "inCycle": false,
+      "changeRiskScore": 1,
+      "isCoreModule": false
+    },
+    {
+      "id": "tailwind.config.js",
+      "loc": 11,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 0,
+      "isCoreModule": false
+    },
+    {
+      "id": "vite.config.js",
+      "loc": 10,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 0,
+      "isCoreModule": false
+    }
+  ],
+  "violations": []
+}

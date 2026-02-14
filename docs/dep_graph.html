@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dependency Graph</title>
+    <style>
+      html,body,#mynetwork { height:100%; margin:0; padding:0 }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/vis-network/styles/vis-network.min.css" />
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  </head>
+  <body>
+    <div id="mynetwork"></div>
+    <script>
+      async function load() {
+        const res = await fetch('dep_graph.json');
+        const json = await res.json();
+        const nodes = new vis.DataSet(json.nodes.map(n => ({ id: n.id, label: n.label, color: n.color, title: n.title, group: n.group })));
+        const edges = new vis.DataSet(json.edges.map(e => ({ from: e.from, to: e.to })));
+        const container = document.getElementById('mynetwork');
+        const data = { nodes, edges };
+        const options = {
+          layout: { improvedLayout: true },
+          edges: { arrows: 'to', smooth: { type: 'dynamic' } },
+          interaction: { hover: true, multiselect: true },
+          physics: { stabilization: true, barnesHut: { gravitationalConstant: -2000, springLength: 200, springConstant: 0.04 } }
+        };
+        new vis.Network(container, data, options);
+      }
+      load().catch(console.error);
+    </script>
+  </body>
+</html>

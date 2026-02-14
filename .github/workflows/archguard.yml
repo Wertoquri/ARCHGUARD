@@ -1,0 +1,27 @@
+name: Archguard Policy Check
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  archguard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
+      - name: Run tests
+        run: npm test
+      - name: Run ARCHGUARD analysis
+        run: npm run analyze
+      - name: Upload findings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: archguard-findings
+          path: findings.json
