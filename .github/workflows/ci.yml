@@ -61,7 +61,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Run migration dry-run/rollback tests
         run: npx vitest run test/dryrun_rollback.test.js --run
