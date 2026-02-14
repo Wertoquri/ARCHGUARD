@@ -2,6 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
+import Ajv from 'ajv';
 import { exec } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
@@ -33,6 +34,16 @@ app.post('/api/policy', (req, res) => {
 
   const { raw } = req.body || {};
   if (!raw || typeof raw !== 'string') return res.status(400).json({ error: 'Missing raw policy content' });
+
+  // validate raw YAML against schema before saving
+  let parsed;
+  try {
+    parsed = yaml.parse(raw);
+  } catch (e) {
+    return res.status(400).json({ error: 'Invalid YAML', details: String(e) });
+  }
+  const valid = validatePolicy(parsed);
+  if (!valid) return res.status(400).json({ error: 'Policy validation failed', details: validatePolicy.errors });
 
   const policyPath = path.join(process.cwd(), 'examples', 'policy.yaml');
   try {
@@ -89,6 +100,33 @@ app.post('/api/policy/convert', (req, res) => {
   }
 });
 
+// Add schema and validation using Ajv
+const ajv = new Ajv({ allErrors: true });
+const policySchema = {
+  type: 'object',
+  properties: {
+    rules: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          name: { type: 'string' },
+          type: { type: 'string', enum: ['forbidden_dependency','max_fan_in','max_fan_out','no_cycles','layer_matrix'] },
+          from: { type: 'string' },
+          to: { type: 'string' },
+          threshold: { type: 'number' },
+          allowSameLayer: { type: 'boolean' }
+        },
+        required: ['type'],
+        additionalProperties: true
+      }
+    }
+  },
+  additionalProperties: true
+};
+const validatePolicy = ajv.compile(policySchema);
+
 // Save edited policy and create branch + PR using gh (requires POLICY_UI_ENABLE_GITHUB=1)
 app.post('/api/save_and_pr', (req, res) => {
   if (process.env.POLICY_UI_ENABLE_GITHUB !== '1') {
@@ -104,6 +142,15 @@ app.post('/api/save_and_pr', (req, res) => {
     fs.writeFileSync(policyPath, raw, 'utf8');
   } catch (err) {
     return res.status(500).json({ error: 'failed to write policy', details: String(err) });
+  }
+
+  // validate saved policy
+  try {
+    const parsed = yaml.parse(raw);
+    const ok = validatePolicy(parsed);
+    if (!ok) return res.status(400).json({ error: 'Policy validation failed', details: validatePolicy.errors });
+  } catch (e) {
+    return res.status(400).json({ error: 'Invalid YAML', details: String(e) });
   }
 
   // Simple guarded git + gh flow

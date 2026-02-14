@@ -38,16 +38,39 @@ function renderRuleEditor(policy) {
   rules.forEach((r, idx) => {
     const wrapper = document.createElement('div');
     wrapper.id = `rule-${idx}`;
-    wrapper.style = 'border:1px solid #ddd;padding:8px;margin:6px 0;';
-    const idIn = document.createElement('input'); idIn.value = r.id || r.name || ''; idIn.placeholder = 'id (optional)';
-    const type = document.createElement('input'); type.value = r.type || ''; type.placeholder = 'type';
-    const from = document.createElement('input'); from.value = r.from || ''; from.placeholder = 'from (pattern)';
-    const to = document.createElement('input'); to.value = r.to || ''; to.placeholder = 'to (pattern)';
-    const threshold = document.createElement('input'); threshold.value = r.threshold || ''; threshold.placeholder = 'threshold (optional)';
+    wrapper.style = 'border:1px solid #ddd;padding:8px;margin:6px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+    const idIn = document.createElement('input'); idIn.value = r.id || r.name || ''; idIn.placeholder = 'id'; idIn.style.width='120px';
+    const typeSelect = document.createElement('select');
+    ['forbidden_dependency','max_fan_in','max_fan_out','no_cycles','layer_matrix'].forEach(t => {
+      const opt = document.createElement('option'); opt.value = t; opt.textContent = t; typeSelect.appendChild(opt);
+    });
+    typeSelect.value = r.type || 'forbidden_dependency';
+    typeSelect.style.width='180px';
+    const from = document.createElement('input'); from.value = r.from || ''; from.placeholder = 'from (pattern)'; from.style.width='180px';
+    const to = document.createElement('input'); to.value = r.to || ''; to.placeholder = 'to (pattern)'; to.style.width='180px';
+    const threshold = document.createElement('input'); threshold.value = r.threshold || ''; threshold.placeholder = 'threshold'; threshold.style.width='100px';
+    const allowSame = document.createElement('input'); allowSame.type='checkbox'; allowSame.checked = r.allowSameLayer || false; const allowLabel = document.createElement('label'); allowLabel.appendChild(allowSame); allowLabel.appendChild(document.createTextNode(' allowSameLayer')); 
     const remove = document.createElement('button'); remove.textContent = 'Remove';
     remove.onclick = () => { currentStructuredPolicy.rules.splice(idx,1); renderRuleEditor(currentStructuredPolicy); };
-    wrapper.appendChild(document.createTextNode(`#${idx} `));
-    wrapper.appendChild(idIn); wrapper.appendChild(type); wrapper.appendChild(from); wrapper.appendChild(to); wrapper.appendChild(threshold); wrapper.appendChild(remove);
+
+    function updateVisibility() {
+      const t = typeSelect.value;
+      from.style.display = (t === 'forbidden_dependency') ? '' : 'none';
+      to.style.display = (t === 'forbidden_dependency' || t === 'layer_matrix') ? '' : 'none';
+      threshold.style.display = (t === 'max_fan_in' || t === 'max_fan_out') ? '' : 'none';
+      allowLabel.style.display = (t === 'layer_matrix') ? '' : 'none';
+    }
+    typeSelect.addEventListener('change', updateVisibility);
+    updateVisibility();
+
+    wrapper.appendChild(document.createTextNode(`#${idx}`));
+    wrapper.appendChild(idIn);
+    wrapper.appendChild(typeSelect);
+    wrapper.appendChild(from);
+    wrapper.appendChild(to);
+    wrapper.appendChild(threshold);
+    wrapper.appendChild(allowLabel);
+    wrapper.appendChild(remove);
     ruleEditor.appendChild(wrapper);
   });
   if (!rules.length) ruleEditor.textContent = 'No rules in policy.';
