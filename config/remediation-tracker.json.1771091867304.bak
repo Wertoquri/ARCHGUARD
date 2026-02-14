@@ -1,0 +1,34 @@
+{
+  "entries": {
+    "eyJydWxlSWQiOiJmb3JiaWRkZW5fZGVwZW5kZW5jeSIsInR5cGUiOiJmb3JiaWRkZW5fZGVwZW5kZW5jeSIsIm1vZHVsZUlkIjoic3JjL2FwcCIsImZyb20iOiJzcmMvYXBwIiwidG8iOiJzcmMvaW5mcmFzdHJ1Y3R1cmUiLCJtZXNzYWdlIjoiU21va2UgdGVzdCBmaW5kaW5nIGlzc3VlIGZsb3cifQ": {
+      "findingRef": {
+        "id": "FG-SMOKE-ISSUE",
+        "rule": "forbidden_dependency",
+        "from": "src/app",
+        "to": "src/infrastructure",
+        "area": "src/app"
+      },
+      "status": "in-progress",
+      "assignee": "team-architecture",
+      "dueDate": "2026-02-28",
+      "confidence": "high",
+      "updatedAt": "2026-02-14T17:57:47.284Z",
+      "history": [
+        {
+          "at": "2026-02-14T17:57:47.284Z",
+          "source": "create-issue-link",
+          "status": "in-progress",
+          "assignee": "team-architecture",
+          "dueDate": "2026-02-28",
+          "note": "Issue prepared: https://github.com/Wertoquri/ARCHGUARD/issues/new?title=%5BARCHGUARD%5D%20High%3A%20forbidden_dependency&body=Finding%20ID%3A%20FG-SMOKE-ISSUE%0ARule%3A%20forbidden_dependency%0ASeverity%3A%20High%0AOwner%3A%20team-architecture%0AArea%3A%20src%2Fapp%0AFrom%3A%20src%2Fapp%0ATo%3A%20src%2Finfrastructure%0A%0ADescription%3A%20Smoke%20test%20finding%20issue%20flow"
+        }
+      ],
+      "lastIssue": {
+        "target": "github",
+        "url": "https://github.com/Wertoquri/ARCHGUARD/issues/new?title=%5BARCHGUARD%5D%20High%3A%20forbidden_dependency&body=Finding%20ID%3A%20FG-SMOKE-ISSUE%0ARule%3A%20forbidden_dependency%0ASeverity%3A%20High%0AOwner%3A%20team-architecture%0AArea%3A%20src%2Fapp%0AFrom%3A%20src%2Fapp%0ATo%3A%20src%2Finfrastructure%0A%0ADescription%3A%20Smoke%20test%20finding%20issue%20flow",
+        "title": "[ARCHGUARD] High: forbidden_dependency",
+        "openedAt": "2026-02-14T17:57:47.284Z"
+      }
+    }
+  }
+}

@@ -69,6 +69,25 @@ jobs:
       - name: Run migration dry-run/rollback tests
         run: npx vitest run test/dryrun_rollback.test.js --run
 
+  policy-framework-tests:
+    name: Policy Framework Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci || npm install --no-audit --no-fund
+
+      - name: Run policy fixture tests
+        run: npm run test:policy
+
   evaluate-pr:
     name: Evaluate PR
     runs-on: ubuntu-latest
@@ -110,6 +129,48 @@ jobs:
             --summary tmp/findings_pr_summary.json \
             --fail-on high
 
+      - name: Apply ownership mapping
+        run: |
+          node scripts/apply_ownership.js \
+            --in tmp/findings_pr.json \
+            --out tmp/findings_pr.json \
+            --owners config/ownership-map.json \
+            --summary tmp/findings_pr_ownership_summary.json
+
+      - name: Collect changed files for PR
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100
+            });
+            const names = files.map(f => f.filename);
+            fs.mkdirSync('tmp', { recursive: true });
+            fs.writeFileSync('tmp/changed_files.json', JSON.stringify(names, null, 2));
+
+      - name: Emit inline annotations for changed files
+        run: |
+          node scripts/emit_pr_annotations.js \
+            --findings tmp/findings_pr.json \
+            --changed tmp/changed_files.json \
+            --max 40
+
+      - name: Build dependency usage map
+        run: node scripts/build_dependency_usage.js --out tmp/dependency_usage.json
+
+      - name: Run npm audit and correlate dependency risk
+        run: |
+          npm audit --json > tmp/npm_audit.json || echo "{}" > tmp/npm_audit.json
+          node scripts/correlate_sbom_risk.js \
+            --sbom tmp/npm_audit.json \
+            --usage tmp/dependency_usage.json \
+            --out tmp/sbom_risk_pr.json
+
       - name: Upload findings artifact
         uses: actions/upload-artifact@v4
         with:
@@ -117,6 +178,8 @@ jobs:
           path: |
             tmp/findings_pr.json
             tmp/findings_pr_summary.json
+            tmp/findings_pr_ownership_summary.json
+            tmp/sbom_risk_pr.json
 
       - name: Post findings summary as PR comment
         uses: actions/github-script@v6
@@ -124,14 +187,21 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-            const path = 'tmp/findings_pr.json';
-            if (!fs.existsSync(path)) {
+            const findingsPath = 'tmp/findings_pr.json';
+            const sbomPath = 'tmp/sbom_risk_pr.json';
+            if (!fs.existsSync(findingsPath)) {
               core.info('No findings file to post.');
               return;
             }
-            const txt = fs.readFileSync(path, 'utf8');
+            const txt = fs.readFileSync(findingsPath, 'utf8');
             let findings = null;
             try { findings = JSON.parse(txt); } catch (e) { findings = null; }
+
+            let sbomRisk = null;
+            if (fs.existsSync(sbomPath)) {
+              try { sbomRisk = JSON.parse(fs.readFileSync(sbomPath, 'utf8')); } catch (e) { sbomRisk = null; }
+            }
+
             const violations = (findings && findings.violations) ? findings.violations : [];
             let body = `**ARCHGUARD analysis** — ${violations.length} violation(s) found for this PR.\n\n`;
             if (violations.length > 0) {
@@ -144,6 +214,21 @@ jobs:
               }
               body += '\n';
             }
+
+            const riskEntries = Array.isArray(sbomRisk?.entries) ? sbomRisk.entries : [];
+            if (riskEntries.length > 0) {
+              body += `**Top ${Math.min(5, riskEntries.length)} dependency risk items (SBOM correlation):**\n`;
+              for (let i = 0; i < Math.min(5, riskEntries.length); i++) {
+                const row = riskEntries[i] || {};
+                const pkg = row.package || 'unknown-package';
+                const score = Number(row.riskScore || 0);
+                const vulnCount = Array.isArray(row.vulnerabilities) ? row.vulnerabilities.length : 0;
+                const exposure = Number(row.exposure || 0);
+                body += `- ${pkg}: riskScore=${score}, vulnerabilities=${vulnCount}, usedBy=${exposure}\n`;
+              }
+              body += '\n';
+            }
+
             body += `Download full findings artifact from the workflow run artifacts.`;
             const prNumber = context.payload.pull_request && context.payload.pull_request.number;
             if (!prNumber) {
@@ -178,6 +263,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    needs:
+      - migration-tests
+      - policy-framework-tests
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -210,6 +298,22 @@ jobs:
             --baseline config/archguard-baseline.json \
             --summary findings_summary.json \
             --fail-on high
+          node scripts/apply_ownership.js \
+            --in findings.json \
+            --out findings.json \
+            --owners config/ownership-map.json \
+            --summary findings_ownership_summary.json
+
+      - name: Build dependency usage map
+        run: node scripts/build_dependency_usage.js --out tmp/dependency_usage.json
+
+      - name: Run npm audit and correlate dependency risk
+        run: |
+          npm audit --json > tmp/npm_audit.json || echo "{}" > tmp/npm_audit.json
+          node scripts/correlate_sbom_risk.js \
+            --sbom tmp/npm_audit.json \
+            --usage tmp/dependency_usage.json \
+            --out tmp/sbom_risk.json
 
       - name: Generate dependency graph and PNG
         run: npm run depgraph:all --silent
@@ -229,6 +333,24 @@ jobs:
           path: |
             findings.json
             findings_summary.json
+            findings_ownership_summary.json
+            tmp/sbom_risk.json
+
+      - name: Capture trend snapshot
+        run: |
+          node scripts/snapshot_trends.js \
+            --in findings.json \
+            --out tmp/trend_snapshot.json \
+            --history analytics/trends_history.json \
+            --max 200
+
+      - name: Upload trend artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: archguard-trends
+          path: |
+            tmp/trend_snapshot.json
+            analytics/trends_history.json
 
   nightly-archguard:
     name: Nightly ARCHGUARD scan
@@ -258,6 +380,22 @@ jobs:
             --baseline config/archguard-baseline.json \
             --summary tmp/nightly_summary.json \
             --fail-on high
+          node scripts/apply_ownership.js \
+            --in tmp/nightly_findings.json \
+            --out tmp/nightly_findings.json \
+            --owners config/ownership-map.json \
+            --summary tmp/nightly_ownership_summary.json
+
+      - name: Build nightly dependency usage map
+        run: node scripts/build_dependency_usage.js --out tmp/dependency_usage_nightly.json
+
+      - name: Run nightly npm audit and correlate risk
+        run: |
+          npm audit --json > tmp/npm_audit_nightly.json || echo "{}" > tmp/npm_audit_nightly.json
+          node scripts/correlate_sbom_risk.js \
+            --sbom tmp/npm_audit_nightly.json \
+            --usage tmp/dependency_usage_nightly.json \
+            --out tmp/sbom_risk_nightly.json
 
       - name: Upload nightly findings artifacts
         uses: actions/upload-artifact@v4
@@ -266,6 +404,24 @@ jobs:
           path: |
             tmp/nightly_findings.json
             tmp/nightly_summary.json
+            tmp/nightly_ownership_summary.json
+            tmp/sbom_risk_nightly.json
+
+      - name: Capture nightly trend snapshot
+        run: |
+          node scripts/snapshot_trends.js \
+            --in tmp/nightly_findings.json \
+            --out tmp/nightly_trend_snapshot.json \
+            --history analytics/trends_history.json \
+            --max 200
+
+      - name: Upload nightly trend artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-archguard-trends
+          path: |
+            tmp/nightly_trend_snapshot.json
+            analytics/trends_history.json
 
       - name: Zip dep graph artifacts
         run: |

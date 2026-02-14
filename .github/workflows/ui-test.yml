@@ -1,10 +1,10 @@
 name: UI Integration Tests
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
+    # run on PRs targeting main (adjust as needed)
     branches: [ main ]
+  workflow_dispatch: {}
 
 jobs:
   ui-test:

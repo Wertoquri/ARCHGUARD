@@ -4,26 +4,20 @@ rules:
     from: domain/**
     to: infrastructure/**
     severity: high
-
   - id: R-002
     type: max_fan_in
     threshold: 10
     severity: medium
-
-    # Example: whitelist specific modules from this rule
     exempt:
       - src/api.js
       - src/context/I18nContext.jsx
-
   - id: R-003
     type: no_cycles
     severity: high
-
   - id: R-004
     type: max_fan_out
     threshold: 12
     severity: medium
-
   - id: R-005
     type: layer_matrix
     severity: high
@@ -39,29 +33,22 @@ rules:
         to: application
       - from: infrastructure
         to: domain
-
-  # Additional example rules demonstrating common organizational constraints
   - id: R-006
     type: forbidden_dependency
     from: domain/**
     to: application/**
     severity: medium
-    message: "Domain layer must not depend directly on application layer"
-
+    message: Domain layer must not depend directly on application layer
   - id: R-007
     type: max_fan_in
     threshold: 15
     severity: medium
-    # applies broadly, highlights potential bottlenecks
     exempt:
       - src/context/I18nContext.jsx
-
   - id: R-008
     type: max_fan_out
     threshold: 20
     severity: medium
-    # prevents modules from becoming overly chatty
-
   - id: R-009
     type: layer_matrix
     severity: high
@@ -70,16 +57,44 @@ rules:
       domain: domain/**
       application: application/**
       infrastructure: infrastructure/**
-    # explicit allowed layer pairs (from -> to)
     allow:
       - from: application
         to: domain
       - from: infrastructure
         to: application
-
-# Global exemptions (whitelist) with reasons
+  - id: R-UI-SMOKE-2
+    type: forbidden_dependency
+    from: src/a/**
+    to: src/b/**
+    severity: high
+  - id: R-UI-SMOKE-3
+    type: forbidden_dependency
+    from: src/test-a/**
+    to: src/test-b/**
+    severity: high
+  - id: R-UI-SMOKE-TEST
+    type: forbidden_dependency
+    from: src/a/**
+    to: src/b/**
+    severity: high
+  - id: R-UI-LAYER-DOMAIN-INFRA
+    name: UI Layer Guardrail
+    type: forbidden_dependency
+    from: src/domain/**
+    to: src/infrastructure/**
+    severity: high
+  - id: R-UI-SMOKE-4
+    type: forbidden_dependency
+    from: src/test-a/**
+    to: src/test-b/**
+    severity: high
+  - id: R-UI-SMOKE-9999
+    type: forbidden_dependency
+    from: src/test-a/**
+    to: src/test-b/**
+    severity: high
 exemptions:
   - pattern: src/api.js
-    reason: "Legacy API façade — scheduled for refactor Q2"
+    reason: Legacy API façade — scheduled for refactor Q2
   - pattern: src/context/I18nContext.jsx
-    reason: "Centralized i18n provider used across UI; reviewed"
+    reason: Centralized i18n provider used across UI; reviewed

@@ -28,6 +28,45 @@ function normalizeBaseline(raw) {
   return [];
 }
 
+function parseIsoDate(value) {
+  if (typeof value !== 'string' || value.trim() === '') {
+    return null;
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+  return parsed;
+}
+
+function splitBaselineByExpiry(entries, now = new Date()) {
+  const activeEntries = [];
+  const expiredEntries = [];
+  const invalidExpiryEntries = [];
+
+  for (const entry of entries) {
+    const expiresAtRaw = entry?.expiresAt;
+    if (expiresAtRaw === undefined) {
+      activeEntries.push(entry);
+      continue;
+    }
+
+    const expiresAt = parseIsoDate(expiresAtRaw);
+    if (!expiresAt) {
+      invalidExpiryEntries.push(entry);
+      continue;
+    }
+
+    if (expiresAt.getTime() < now.getTime()) {
+      expiredEntries.push(entry);
+    } else {
+      activeEntries.push(entry);
+    }
+  }
+
+  return { activeEntries, expiredEntries, invalidExpiryEntries };
+}
+
 function matchesBaseline(violation, entry) {
   if (!entry || typeof entry !== 'object') return false;
 
@@ -83,9 +122,10 @@ function run() {
   const baselinePath = args.baseline;
   const failOn = args['fail-on'] || 'high';
   const summaryPath = args.summary;
+  const failOnExpired = args['fail-on-expired'] === undefined ? true : args['fail-on-expired'] !== 'false';
 
   if (!inputPath || !outputPath || !baselinePath) {
-    console.error('Usage: node scripts/apply_baseline.js --in <findings.json> --out <filtered.json> --baseline <baseline.json> [--fail-on high] [--summary <summary.json>]');
+    console.error('Usage: node scripts/apply_baseline.js --in <findings.json> --out <filtered.json> --baseline <baseline.json> [--fail-on high] [--summary <summary.json>] [--fail-on-expired true|false]');
     process.exit(2);
   }
 
@@ -97,10 +137,11 @@ function run() {
   const report = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
   const baselineRaw = JSON.parse(fs.readFileSync(baselinePath, 'utf8'));
   const baseline = normalizeBaseline(baselineRaw);
+  const { activeEntries, expiredEntries, invalidExpiryEntries } = splitBaselineByExpiry(baseline);
 
   const originalViolations = Array.isArray(report.violations) ? report.violations : [];
   const filteredViolations = originalViolations.filter(
-    (violation) => !baseline.some((entry) => matchesBaseline(violation, entry))
+    (violation) => !activeEntries.some((entry) => matchesBaseline(violation, entry))
   );
 
   const filteredReport = {
@@ -108,6 +149,9 @@ function run() {
     violations: filteredViolations,
     baseline: {
       baselineEntries: baseline.length,
+      activeEntries: activeEntries.length,
+      expiredEntries: expiredEntries.length,
+      invalidExpiryEntries: invalidExpiryEntries.length,
       ignoredViolations: originalViolations.length - filteredViolations.length,
       remainingViolations: filteredViolations.length,
     },
@@ -119,10 +163,15 @@ function run() {
   const summary = {
     generatedAt: new Date().toISOString(),
     failOn,
+    failOnExpired,
     totalViolations: originalViolations.length,
     ignoredByBaseline: originalViolations.length - filteredViolations.length,
     remainingViolations: filteredViolations.length,
     remainingBySeverity: countBySeverity(filteredViolations),
+    baselineEntries: baseline.length,
+    activeBaselineEntries: activeEntries.length,
+    expiredBaselineEntries: expiredEntries.length,
+    invalidExpiryEntries: invalidExpiryEntries.length,
     shouldFail: shouldFail(filteredViolations, failOn),
   };
 
@@ -132,9 +181,22 @@ function run() {
   }
 
   console.log(`Baseline entries: ${baseline.length}`);
+  console.log(`Active baseline entries: ${activeEntries.length}`);
+  console.log(`Expired baseline entries: ${expiredEntries.length}`);
+  console.log(`Invalid-expiry baseline entries: ${invalidExpiryEntries.length}`);
   console.log(`Violations before baseline: ${originalViolations.length}`);
   console.log(`Violations ignored by baseline: ${summary.ignoredByBaseline}`);
   console.log(`Violations after baseline: ${filteredViolations.length}`);
+
+  if (invalidExpiryEntries.length > 0) {
+    console.error('Some baseline entries have invalid expiresAt format. Use ISO date format, for example: 2026-03-01T00:00:00.000Z');
+    process.exit(1);
+  }
+
+  if (failOnExpired && expiredEntries.length > 0) {
+    console.error('Baseline contains expired exemptions. Remove or renew expired entries.');
+    process.exit(1);
+  }
 
   if (summary.shouldFail) {
     console.error(`Policy violations exceed configured threshold after baseline filtering (--fail-on ${failOn}).`);

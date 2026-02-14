@@ -1,0 +1,368 @@
+{
+  "generatedAt": "2026-02-14T12:13:15.564Z",
+  "globalMetrics": {
+    "totalModules": 35,
+    "totalEdges": 24,
+    "avgInstability": 0.3467,
+    "cycleCount": 0,
+    "coreModules": 1
+  },
+  "riskSummary": {
+    "highRiskModules": 0,
+    "mediumRiskModules": 1,
+    "lowRiskModules": 34
+  },
+  "moduleMetrics": [
+    {
+      "id": "findings-ui/app.js",
+      "loc": 99,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 12,
+      "isCoreModule": false
+    },
+    {
+      "id": "migration_bundle_review/src/components/Dashboard.jsx",
+      "loc": 243,
+      "fanIn": 0,
+      "fanOut": 3,
+      "instability": 1,
+      "inCycle": false,
+      "changeRiskScore": 29,
+      "isCoreModule": false
+    },
+    {
+      "id": "migration_bundle_review/src/components/InviteUserPanel.jsx",
+      "loc": 28,
+      "fanIn": 0,
+      "fanOut": 1,
+      "instability": 1,
+      "inCycle": false,
+      "changeRiskScore": 3,
+      "isCoreModule": false
+    },
+    {
+      "id": "migration_bundle_review/src/components/Login.jsx",
+      "loc": 121,
+      "fanIn": 0,
+      "fanOut": 1,
+      "instability": 1,
+      "inCycle": false,
+      "changeRiskScore": 14,
+      "isCoreModule": false
+    },
+    {
+      "id": "migration_bundle_review/src/components/MembersPanel.jsx",
+      "loc": 193,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 23,
+      "isCoreModule": false
+    },
+    {
+      "id": "migration_bundle_review/src/components/NotificationsBell.jsx",
+      "loc": 229,
+      "fanIn": 1,
+      "fanOut": 1,
+      "instability": 0.5,
+      "inCycle": false,
+      "changeRiskScore": 37,
+      "isCoreModule": false
+    },
+    {
+      "id": "migration_bundle_review/src/components/ProfileMenu.jsx",
+      "loc": 103,
+      "fanIn": 1,
+      "fanOut": 1,
+      "instability": 0.5,
+      "inCycle": false,
+      "changeRiskScore": 22,
+      "isCoreModule": false
+    },
+    {
+      "id": "migration_bundle_review/src/context/authApi.js",
+      "loc": 16,
+      "fanIn": 5,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 52,
+      "isCoreModule": true
+    },
+    {
+      "id": "migration_bundle_test/src/components/InviteUserPanel.jsx",
+      "loc": 28,
+      "fanIn": 0,
+      "fanOut": 1,
+      "instability": 1,
+      "inCycle": false,
+      "changeRiskScore": 3,
+      "isCoreModule": false
+    },
+    {
+      "id": "migration_bundle_test/src/context/authApi.js",
+      "loc": 16,
+      "fanIn": 1,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 12,
+      "isCoreModule": false
+    },
+    {
+      "id": "policy-ui/app.js",
+      "loc": 213,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 25,
+      "isCoreModule": false
+    },
+    {
+      "id": "scripts/apply_baseline.js",
+      "loc": 207,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 25,
+      "isCoreModule": false
+    },
+    {
+      "id": "scripts/generate_dep_graph.js",
+      "loc": 155,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 18,
+      "isCoreModule": false
+    },
+    {
+      "id": "scripts/render_dep_graph.js",
+      "loc": 44,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 5,
+      "isCoreModule": false
+    },
+    {
+      "id": "scripts/serve_policy_ui.js",
+      "loc": 252,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 30,
+      "isCoreModule": false
+    },
+    {
+      "id": "scripts/simulate_policy.js",
+      "loc": 165,
+      "fanIn": 0,
+      "fanOut": 1,
+      "instability": 1,
+      "inCycle": false,
+      "changeRiskScore": 20,
+      "isCoreModule": false
+    },
+    {
+      "id": "scripts/suggest_baseline.js",
+      "loc": 149,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 18,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/ai/explain.js",
+      "loc": 32,
+      "fanIn": 1,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 14,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/cli.js",
+      "loc": 109,
+      "fanIn": 0,
+      "fanOut": 1,
+      "instability": 1,
+      "inCycle": false,
+      "changeRiskScore": 13,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/components/InviteUserPanel.jsx",
+      "loc": 32,
+      "fanIn": 0,
+      "fanOut": 1,
+      "instability": 1,
+      "inCycle": false,
+      "changeRiskScore": 4,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/context/__tests__/authApi.test.js",
+      "loc": 35,
+      "fanIn": 0,
+      "fanOut": 1,
+      "instability": 1,
+      "inCycle": false,
+      "changeRiskScore": 4,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/context/authApi.js",
+      "loc": 16,
+      "fanIn": 2,
+      "fanOut": 1,
+      "instability": 0.3333,
+      "inCycle": false,
+      "changeRiskScore": 22,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/context/AuthContext.jsx",
+      "loc": 7,
+      "fanIn": 1,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 11,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/graph/analysis.js",
+      "loc": 64,
+      "fanIn": 2,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 28,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/graph/graph.js",
+      "loc": 58,
+      "fanIn": 1,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 17,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/index.js",
+      "loc": 47,
+      "fanIn": 2,
+      "fanOut": 8,
+      "instability": 0.8,
+      "inCycle": false,
+      "changeRiskScore": 26,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/metrics/metrics.js",
+      "loc": 67,
+      "fanIn": 1,
+      "fanOut": 1,
+      "instability": 0.5,
+      "inCycle": false,
+      "changeRiskScore": 18,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/migration/runner.js",
+      "loc": 42,
+      "fanIn": 1,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 15,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/parser/astParser.js",
+      "loc": 49,
+      "fanIn": 1,
+      "fanOut": 1,
+      "instability": 0.5,
+      "inCycle": false,
+      "changeRiskScore": 16,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/policy/policyEngine.js",
+      "loc": 208,
+      "fanIn": 1,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 35,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/report/report.js",
+      "loc": 19,
+      "fanIn": 1,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 12,
+      "isCoreModule": false
+    },
+    {
+      "id": "src/utils/fs.js",
+      "loc": 52,
+      "fanIn": 2,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 26,
+      "isCoreModule": false
+    },
+    {
+      "id": "test/authApi.test.js",
+      "loc": 18,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 2,
+      "isCoreModule": false
+    },
+    {
+      "id": "test/cli.test.js",
+      "loc": 17,
+      "fanIn": 0,
+      "fanOut": 0,
+      "instability": 0,
+      "inCycle": false,
+      "changeRiskScore": 2,
+      "isCoreModule": false
+    },
+    {
+      "id": "test/dryrun_rollback.test.js",
+      "loc": 43,
+      "fanIn": 0,
+      "fanOut": 1,
+      "instability": 1,
+      "inCycle": false,
+      "changeRiskScore": 5,
+      "isCoreModule": false
+    }
+  ],
+  "violations": []
+}

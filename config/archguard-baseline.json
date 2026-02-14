@@ -1,3 +1,22 @@
 {
-  "ignoredViolations": []
+  "ignoredViolations": [
+    {
+      "ruleId": "R-EXAMPLE",
+      "type": "forbidden_dependency",
+      "from": "src/legacy/**",
+      "to": "src/legacy/**",
+      "severity": "high",
+      "reason": "example-only-remove-before-production",
+      "owner": "team-architecture",
+      "expiresAt": "2099-01-01T00:00:00.000Z"
+    },
+    {
+      "ruleId": "R-002",
+      "moduleId": "src/components/y.ts",
+      "severity": "medium",
+      "messageContains": "ignore-me",
+      "reason": "ui-test",
+      "owner": "team-ui"
+    }
+  ]
 }

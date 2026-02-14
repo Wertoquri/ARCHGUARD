@@ -1,0 +1,17 @@
+# Sample policy pack: strict-security
+policies:
+  - id: no-debug-logs
+    title: Disallow debug logs in production
+    description: Ensure applications do not leave debug logging enabled
+    severity: high
+    rule: |
+      when: true
+      then: deny
+
+  - id: require-auth
+    title: Require authentication for endpoints
+    description: All HTTP endpoints must require authentication
+    severity: medium
+    rule: |
+      when: true
+      then: warn

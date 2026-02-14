@@ -1,0 +1,247 @@
+{
+  "generatedAt": "2026-02-14T16:15:10.282Z",
+  "totalAtRiskPackages": 15,
+  "criticalPackages": 0,
+  "entries": [
+    {
+      "package": "multer",
+      "vulnerabilities": [
+        {
+          "id": "1104780",
+          "severity": "high",
+          "score": 0
+        },
+        {
+          "id": "1105262",
+          "severity": "high",
+          "score": 0
+        },
+        {
+          "id": "1105267",
+          "severity": "high",
+          "score": 0
+        },
+        {
+          "id": "1106463",
+          "severity": "high",
+          "score": 0
+        },
+        {
+          "id": "npm-audit:busboy",
+          "severity": "high",
+          "score": 0
+        }
+      ],
+      "usedBy": [],
+      "exposure": 0,
+      "riskScore": 15
+    },
+    {
+      "package": "tar-fs",
+      "vulnerabilities": [
+        {
+          "id": "1109534",
+          "severity": "high",
+          "score": 0
+        },
+        {
+          "id": "1109542",
+          "severity": "high",
+          "score": 0
+        },
+        {
+          "id": "1109551",
+          "severity": "high",
+          "score": 0
+        }
+      ],
+      "usedBy": [],
+      "exposure": 0,
+      "riskScore": 9
+    },
+    {
+      "package": "puppeteer",
+      "vulnerabilities": [
+        {
+          "id": "npm-audit:@puppeteer/browsers",
+          "severity": "high",
+          "score": 0
+        },
+        {
+          "id": "npm-audit:puppeteer-core",
+          "severity": "high",
+          "score": 0
+        }
+      ],
+      "usedBy": [],
+      "exposure": 0,
+      "riskScore": 6
+    },
+    {
+      "package": "puppeteer-core",
+      "vulnerabilities": [
+        {
+          "id": "npm-audit:@puppeteer/browsers",
+          "severity": "high",
+          "score": 0
+        },
+        {
+          "id": "npm-audit:ws",
+          "severity": "high",
+          "score": 0
+        }
+      ],
+      "usedBy": [],
+      "exposure": 0,
+      "riskScore": 6
+    },
+    {
+      "package": "@puppeteer/browsers",
+      "vulnerabilities": [
+        {
+          "id": "npm-audit:tar-fs",
+          "severity": "high",
+          "score": 0
+        }
+      ],
+      "usedBy": [],
+      "exposure": 0,
+      "riskScore": 3
+    },
+    {
+      "package": "busboy",
+      "vulnerabilities": [
+        {
+          "id": "npm-audit:dicer",
+          "severity": "high",
+          "score": 0
+        }
+      ],
+      "usedBy": [],
+      "exposure": 0,
+      "riskScore": 3
+    },
+    {
+      "package": "dicer",
+      "vulnerabilities": [
+        {
+          "id": "1093150",
+          "severity": "high",
+          "score": 0
+        }
+      ],
+      "usedBy": [],
+      "exposure": 0,
+      "riskScore": 3
+    },
+    {
+      "package": "ws",
+      "vulnerabilities": [
+        {
+          "id": "1098392",
+          "severity": "high",
+          "score": 0
+        }
+      ],
+      "usedBy": [],
+      "exposure": 0,
+      "riskScore": 3
+    },
+    {
+      "package": "vitest",
+      "vulnerabilities": [
+        {
+          "id": "npm-audit:vite",
+          "severity": "low",
+          "score": 0
+        },
+        {
+          "id": "npm-audit:vite-node",
+          "severity": "low",
+          "score": 0
+        }
+      ],
+      "usedBy": [],
+      "exposure": 0,
+      "riskScore": 2
+    },
+    {
+      "package": "esbuild",
+      "vulnerabilities": [
+        {
+          "id": "1102341",
+          "severity": "low",
+          "score": 0
+        }
+      ],
+      "usedBy": [],
+      "exposure": 0,
+      "riskScore": 1
+    },
+    {
+      "package": "lint-staged",
+      "vulnerabilities": [
+        {
+          "id": "npm-audit:micromatch",
+          "severity": "low",
+          "score": 0
+        }
+      ],
+      "usedBy": [],
+      "exposure": 0,
+      "riskScore": 1
+    },
+    {
+      "package": "micromatch",
+      "vulnerabilities": [
+        {
+          "id": "1098681",
+          "severity": "low",
+          "score": 0
+        }
+      ],
+      "usedBy": [],
+      "exposure": 0,
+      "riskScore": 1
+    },
+    {
+      "package": "qs",
+      "vulnerabilities": [
+        {
+          "id": "1113161",
+          "severity": "low",
+          "score": 0
+        }
+      ],
+      "usedBy": [],
+      "exposure": 0,
+      "riskScore": 1
+    },
+    {
+      "package": "vite",
+      "vulnerabilities": [
+        {
+          "id": "npm-audit:esbuild",
+          "severity": "low",
+          "score": 0
+        }
+      ],
+      "usedBy": [],
+      "exposure": 0,
+      "riskScore": 1
+    },
+    {
+      "package": "vite-node",
+      "vulnerabilities": [
+        {
+          "id": "npm-audit:vite",
+          "severity": "low",
+          "score": 0
+        }
+      ],
+      "usedBy": [],
+      "exposure": 0,
+      "riskScore": 1
+    }
+  ]
+}

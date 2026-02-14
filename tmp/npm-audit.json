@@ -1,0 +1,501 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@puppeteer/browsers": {
+      "name": "@puppeteer/browsers",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "tar-fs"
+      ],
+      "effects": [
+        "puppeteer",
+        "puppeteer-core"
+      ],
+      "range": "1.4.2 - 2.2.3",
+      "nodes": [
+        "node_modules/@puppeteer/browsers"
+      ],
+      "fixAvailable": {
+        "name": "puppeteer",
+        "version": "24.37.3",
+        "isSemVerMajor": true
+      }
+    },
+    "busboy": {
+      "name": "busboy",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "dicer"
+      ],
+      "effects": [
+        "multer"
+      ],
+      "range": "<=0.3.1",
+      "nodes": [
+        "node_modules/busboy"
+      ],
+      "fixAvailable": {
+        "name": "multer",
+        "version": "2.0.2",
+        "isSemVerMajor": true
+      }
+    },
+    "dicer": {
+      "name": "dicer",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1093150,
+          "name": "dicer",
+          "dependency": "dicer",
+          "title": "Crash in HeaderParser in dicer",
+          "url": "https://github.com/advisories/GHSA-wm7h-9275-46v2",
+          "severity": "high",
+          "cwe": [
+            "CWE-248"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=0.3.1"
+        }
+      ],
+      "effects": [
+        "busboy"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/dicer"
+      ],
+      "fixAvailable": {
+        "name": "multer",
+        "version": "2.0.2",
+        "isSemVerMajor": true
+      }
+    },
+    "esbuild": {
+      "name": "esbuild",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1102341,
+          "name": "esbuild",
+          "dependency": "esbuild",
+          "title": "esbuild enables any website to send any requests to the development server and read the response",
+          "url": "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-346"
+          ],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:N/A:N"
+          },
+          "range": "<=0.24.2"
+        }
+      ],
+      "effects": [
+        "vite"
+      ],
+      "range": "<=0.24.2",
+      "nodes": [
+        "node_modules/esbuild"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "4.0.18",
+        "isSemVerMajor": true
+      }
+    },
+    "lint-staged": {
+      "name": "lint-staged",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "micromatch"
+      ],
+      "effects": [],
+      "range": "7.0.0 - 8.2.1 || 13.3.0 - 15.2.4",
+      "nodes": [
+        "node_modules/lint-staged"
+      ],
+      "fixAvailable": {
+        "name": "lint-staged",
+        "version": "16.2.7",
+        "isSemVerMajor": true
+      }
+    },
+    "micromatch": {
+      "name": "micromatch",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1098681,
+          "name": "micromatch",
+          "dependency": "micromatch",
+          "title": "Regular Expression Denial of Service (ReDoS) in micromatch",
+          "url": "https://github.com/advisories/GHSA-952p-6rrq-rcjv",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-1333"
+          ],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": "<4.0.8"
+        }
+      ],
+      "effects": [
+        "lint-staged"
+      ],
+      "range": "<4.0.8",
+      "nodes": [
+        "node_modules/lint-staged/node_modules/micromatch"
+      ],
+      "fixAvailable": {
+        "name": "lint-staged",
+        "version": "16.2.7",
+        "isSemVerMajor": true
+      }
+    },
+    "multer": {
+      "name": "multer",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        {
+          "source": 1104780,
+          "name": "multer",
+          "dependency": "multer",
+          "title": "Multer vulnerable to Denial of Service from maliciously crafted requests",
+          "url": "https://github.com/advisories/GHSA-4pg4-qvpc-4q3h",
+          "severity": "high",
+          "cwe": [
+            "CWE-248"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=1.4.4-lts.1 <2.0.0"
+        },
+        {
+          "source": 1105262,
+          "name": "multer",
+          "dependency": "multer",
+          "title": "Multer vulnerable to Denial of Service via unhandled exception",
+          "url": "https://github.com/advisories/GHSA-g5hg-p3ph-g8qg",
+          "severity": "high",
+          "cwe": [
+            "CWE-248"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": ">=1.4.4-lts.1 <2.0.1"
+        },
+        {
+          "source": 1105267,
+          "name": "multer",
+          "dependency": "multer",
+          "title": "Multer vulnerable to Denial of Service via memory leaks from unclosed streams",
+          "url": "https://github.com/advisories/GHSA-44fp-w29j-9vj5",
+          "severity": "high",
+          "cwe": [
+            "CWE-401"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<2.0.0"
+        },
+        {
+          "source": 1106463,
+          "name": "multer",
+          "dependency": "multer",
+          "title": "Multer vulnerable to Denial of Service via unhandled exception from malformed request",
+          "url": "https://github.com/advisories/GHSA-fjgf-rc76-4x9p",
+          "severity": "high",
+          "cwe": [
+            "CWE-248"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=1.4.4-lts.1 <2.0.2"
+        },
+        "busboy"
+      ],
+      "effects": [],
+      "range": "<=2.0.1",
+      "nodes": [
+        "node_modules/multer"
+      ],
+      "fixAvailable": {
+        "name": "multer",
+        "version": "2.0.2",
+        "isSemVerMajor": true
+      }
+    },
+    "puppeteer": {
+      "name": "puppeteer",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "@puppeteer/browsers",
+        "puppeteer-core"
+      ],
+      "effects": [],
+      "range": "18.2.0 - 22.13.0",
+      "nodes": [
+        "node_modules/puppeteer"
+      ],
+      "fixAvailable": {
+        "name": "puppeteer",
+        "version": "24.37.3",
+        "isSemVerMajor": true
+      }
+    },
+    "puppeteer-core": {
+      "name": "puppeteer-core",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "@puppeteer/browsers",
+        "ws"
+      ],
+      "effects": [
+        "puppeteer"
+      ],
+      "range": "11.0.0 - 22.13.0",
+      "nodes": [
+        "node_modules/puppeteer-core"
+      ],
+      "fixAvailable": {
+        "name": "puppeteer",
+        "version": "24.37.3",
+        "isSemVerMajor": true
+      }
+    },
+    "qs": {
+      "name": "qs",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1113161,
+          "name": "qs",
+          "dependency": "qs",
+          "title": "qs's arrayLimit bypass in comma parsing allows denial of service",
+          "url": "https://github.com/advisories/GHSA-w7fw-mjwx-w883",
+          "severity": "low",
+          "cwe": [
+            "CWE-20"
+          ],
+          "cvss": {
+            "score": 3.7,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=6.7.0 <=6.14.1"
+        }
+      ],
+      "effects": [],
+      "range": "6.7.0 - 6.14.1",
+      "nodes": [
+        "node_modules/qs"
+      ],
+      "fixAvailable": true
+    },
+    "tar-fs": {
+      "name": "tar-fs",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1109534,
+          "name": "tar-fs",
+          "dependency": "tar-fs",
+          "title": "tar-fs has a symlink validation bypass if destination directory is predictable with a specific tarball",
+          "url": "https://github.com/advisories/GHSA-vj76-c3g6-qr5v",
+          "severity": "high",
+          "cwe": [
+            "CWE-22",
+            "CWE-61"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": ">=3.0.0 <3.1.1"
+        },
+        {
+          "source": 1109542,
+          "name": "tar-fs",
+          "dependency": "tar-fs",
+          "title": "tar-fs can extract outside the specified dir with a specific tarball",
+          "url": "https://github.com/advisories/GHSA-8cj5-5rvv-wf4v",
+          "severity": "high",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": ">=3.0.0 <3.0.9"
+        },
+        {
+          "source": 1109551,
+          "name": "tar-fs",
+          "dependency": "tar-fs",
+          "title": "tar-fs Vulnerable to Link Following and Path Traversal via Extracting a Crafted tar File",
+          "url": "https://github.com/advisories/GHSA-pq67-2wwv-3xjx",
+          "severity": "high",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+          },
+          "range": ">=3.0.0 <3.0.7"
+        }
+      ],
+      "effects": [
+        "@puppeteer/browsers"
+      ],
+      "range": "3.0.0 - 3.1.0",
+      "nodes": [
+        "node_modules/tar-fs"
+      ],
+      "fixAvailable": {
+        "name": "puppeteer",
+        "version": "24.37.3",
+        "isSemVerMajor": true
+      }
+    },
+    "vite": {
+      "name": "vite",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "esbuild"
+      ],
+      "effects": [
+        "vite-node",
+        "vitest"
+      ],
+      "range": "0.11.0 - 6.1.6",
+      "nodes": [
+        "node_modules/vite"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "4.0.18",
+        "isSemVerMajor": true
+      }
+    },
+    "vite-node": {
+      "name": "vite-node",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "vite"
+      ],
+      "effects": [
+        "vitest"
+      ],
+      "range": "<=2.2.0-beta.2",
+      "nodes": [
+        "node_modules/vite-node"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "4.0.18",
+        "isSemVerMajor": true
+      }
+    },
+    "vitest": {
+      "name": "vitest",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "vite",
+        "vite-node"
+      ],
+      "effects": [],
+      "range": "0.0.1 - 0.0.12 || 0.0.29 - 0.0.122 || 0.3.3 - 2.2.0-beta.2",
+      "nodes": [
+        "node_modules/vitest"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "4.0.18",
+        "isSemVerMajor": true
+      }
+    },
+    "ws": {
+      "name": "ws",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1098392,
+          "name": "ws",
+          "dependency": "ws",
+          "title": "ws affected by a DoS when handling a request with many HTTP headers",
+          "url": "https://github.com/advisories/GHSA-3h5v-q93c-6h6q",
+          "severity": "high",
+          "cwe": [
+            "CWE-476"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=8.0.0 <8.17.1"
+        }
+      ],
+      "effects": [
+        "puppeteer-core"
+      ],
+      "range": "8.0.0 - 8.17.0",
+      "nodes": [
+        "node_modules/ws"
+      ],
+      "fixAvailable": {
+        "name": "puppeteer",
+        "version": "24.37.3",
+        "isSemVerMajor": true
+      }
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 1,
+      "moderate": 6,
+      "high": 8,
+      "critical": 0,
+      "total": 15
+    },
+    "dependencies": {
+      "prod": 58,
+      "dev": 509,
+      "optional": 52,
+      "peer": 4,
+      "peerOptional": 0,
+      "total": 567
+    }
+  }
+}
