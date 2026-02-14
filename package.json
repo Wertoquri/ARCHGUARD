@@ -21,9 +21,28 @@
     "ag": "node src/cli.js",
     "depgraph": "node scripts/generate_dep_graph.js",
     "depgraph:render": "node scripts/render_dep_graph.js",
-    "depgraph:all": "npm run depgraph && npm run depgraph:render"
+    "depgraph:all": "npm run depgraph && npm run depgraph:render",
+    "baseline:apply": "node scripts/apply_baseline.js",
+    "baseline:suggest": "node scripts/suggest_baseline.js"
+    ,"ownership:apply": "node scripts/apply_ownership.js"
+    ,"trend:snapshot": "node scripts/snapshot_trends.js"
+    ,"test:policy": "vitest run test/policy_framework.test.js"
+    ,"policy:simulate": "node scripts/simulate_policy.js"
+    ,"dependency:usage": "node scripts/build_dependency_usage.js"
+    ,"sbom:correlate": "node scripts/correlate_sbom_risk.js"
+    ,"pr:annotate": "node scripts/emit_pr_annotations.js"
+    ,"policy:pack:strict": "node src/cli.js --policy policy-packs/strict.yaml --out tmp/findings.strict.json --fail-on high"
+    ,"policy:pack:legacy-safe": "node src/cli.js --policy policy-packs/legacy-safe.yaml --out tmp/findings.legacy-safe.json --fail-on high"
+    ,"policy:pack:frontend-heavy": "node src/cli.js --policy policy-packs/frontend-heavy.yaml --out tmp/findings.frontend-heavy.json --fail-on high"
+    ,"doctor": "node src/cli.js --doctor"
+    ,"init": "node src/cli.js --init"
+    ,"explain": "node src/cli.js --policy examples/policy.yaml --explain"
     ,"policy-ui": "node scripts/serve_policy_ui.js"
     ,"findings-ui": "node scripts/serve_policy_ui.js"
+    ,"figma-ui:dev": "npm --prefix FigmaUI run dev"
+    ,"figma-ui:build": "npm --prefix FigmaUI run build"
+    ,"figma-ui:install": "npm --prefix FigmaUI install"
+    ,"ci:ui-test": "node scripts/ci_ui_test_runner.js"
   },
   
   "devDependencies": {
@@ -44,6 +63,8 @@
     "ajv": "^8.12.0",
     "typescript": "^5.4.0",
     "yaml": "^2.4.1"
+    ,
+    "multer": "^1.4.4"
   }
   ,
   "lint-staged": {
