@@ -1,0 +1,25 @@
+name: UI Integration Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ui-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install repo dependencies
+        run: npm ci
+      - name: Install Figma UI deps
+        run: npm --prefix FigmaUI ci
+      - name: Run UI integration test
+        run: npm run ci:ui-test
+        env:
+          CI: true

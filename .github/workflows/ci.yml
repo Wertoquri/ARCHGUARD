@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
 
 jobs:
   lint:
@@ -31,7 +34,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install --no-audit --no-fund
 
       - name: Run ESLint
         run: npm run lint
@@ -61,7 +64,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Run migration dry-run/rollback tests
         run: npx vitest run test/dryrun_rollback.test.js --run
@@ -70,6 +73,9 @@ jobs:
     name: Evaluate PR
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -88,18 +94,85 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install --no-audit --no-fund
 
       - name: Run ARCHGUARD analysis for PR
         run: |
           mkdir -p tmp
-          node src/cli.js --policy examples/policy.yaml --out tmp/findings_pr.json || true
+          node src/cli.js --policy examples/policy.yaml --out tmp/findings_pr.raw.json --fail-on critical
+
+      - name: Apply baseline and enforce fail threshold
+        run: |
+          node scripts/apply_baseline.js \
+            --in tmp/findings_pr.raw.json \
+            --out tmp/findings_pr.json \
+            --baseline config/archguard-baseline.json \
+            --summary tmp/findings_pr_summary.json \
+            --fail-on high
 
       - name: Upload findings artifact
         uses: actions/upload-artifact@v4
         with:
           name: pr-findings
-          path: tmp/findings_pr.json
+          path: |
+            tmp/findings_pr.json
+            tmp/findings_pr_summary.json
+
+      - name: Post findings summary as PR comment
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = 'tmp/findings_pr.json';
+            if (!fs.existsSync(path)) {
+              core.info('No findings file to post.');
+              return;
+            }
+            const txt = fs.readFileSync(path, 'utf8');
+            let findings = null;
+            try { findings = JSON.parse(txt); } catch (e) { findings = null; }
+            const violations = (findings && findings.violations) ? findings.violations : [];
+            let body = `**ARCHGUARD analysis** — ${violations.length} violation(s) found for this PR.\n\n`;
+            if (violations.length > 0) {
+              body += `**Top ${Math.min(10, violations.length)} violations:**\n`;
+              for (let i = 0; i < Math.min(10, violations.length); i++) {
+                const v = violations[i];
+                const rule = v.rule || v.type || v.ruleId || 'rule';
+                const msg = v.message || v.summary || JSON.stringify(v);
+                body += `- ${rule}: ${msg}\n`;
+              }
+              body += '\n';
+            }
+            body += `Download full findings artifact from the workflow run artifacts.`;
+            const prNumber = context.payload.pull_request && context.payload.pull_request.number;
+            if (!prNumber) {
+              core.info('No pull_request number in context; skipping comment');
+              return;
+            }
+            await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: prNumber, body });
+
+      - name: Notify webhook on high/critical findings (optional)
+        if: always()
+        env:
+          ARCHGUARD_WEBHOOK_URL: ${{ vars.ARCHGUARD_WEBHOOK_URL }}
+        run: |
+          if [ -z "$ARCHGUARD_WEBHOOK_URL" ]; then
+            echo "ARCHGUARD_WEBHOOK_URL is not configured; skipping webhook notification."
+            exit 0
+          fi
+          if [ ! -f tmp/findings_pr_summary.json ]; then
+            echo "No summary file found; skipping webhook notification."
+            exit 0
+          fi
+          HIGH_COUNT=$(node -e "const fs=require('fs'); const s=JSON.parse(fs.readFileSync('tmp/findings_pr_summary.json','utf8')); process.stdout.write(String((s.remainingBySeverity?.high||0)+(s.remainingBySeverity?.critical||0)));")
+          if [ "$HIGH_COUNT" = "0" ]; then
+            echo "No high/critical findings after baseline; skipping webhook notification."
+            exit 0
+          fi
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PAYLOAD=$(node -e "const high=process.argv[1]; const runUrl=process.argv[2]; const repo=process.argv[3]; const pr=process.argv[4]; const msg={text:`ARCHGUARD alert: ${high} high/critical finding(s) in ${repo} PR #${pr}. Run: ${runUrl}`}; process.stdout.write(JSON.stringify(msg));" "$HIGH_COUNT" "$RUN_URL" "${{ github.repository }}" "${{ github.event.pull_request.number }}")
+          curl -sS -X POST -H "Content-Type: application/json" -d "$PAYLOAD" "$ARCHGUARD_WEBHOOK_URL"
 
   test-and-analyze:
     runs-on: ubuntu-latest
@@ -123,13 +196,20 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install --no-audit --no-fund
 
       - name: Run tests
         run: npm test --silent
 
       - name: Run ARCHGUARD analysis
-        run: node src/cli.js --policy examples/policy.yaml --out findings.json --fail-on high
+        run: |
+          node src/cli.js --policy examples/policy.yaml --out findings_raw.json --fail-on critical
+          node scripts/apply_baseline.js \
+            --in findings_raw.json \
+            --out findings.json \
+            --baseline config/archguard-baseline.json \
+            --summary findings_summary.json \
+            --fail-on high
 
       - name: Generate dependency graph and PNG
         run: npm run depgraph:all --silent
@@ -141,6 +221,51 @@ jobs:
           path: |
             docs/dep_graph.json
             docs/dep_graph.png
+
+      - name: Upload findings summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: archguard-findings-summary
+          path: |
+            findings.json
+            findings_summary.json
+
+  nightly-archguard:
+    name: Nightly ARCHGUARD scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci || npm install --no-audit --no-fund
+
+      - name: Run nightly ARCHGUARD analysis with baseline
+        run: |
+          mkdir -p tmp
+          node src/cli.js --policy examples/policy.yaml --out tmp/nightly_findings_raw.json --fail-on critical
+          node scripts/apply_baseline.js \
+            --in tmp/nightly_findings_raw.json \
+            --out tmp/nightly_findings.json \
+            --baseline config/archguard-baseline.json \
+            --summary tmp/nightly_summary.json \
+            --fail-on high
+
+      - name: Upload nightly findings artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-archguard-findings
+          path: |
+            tmp/nightly_findings.json
+            tmp/nightly_summary.json
 
       - name: Zip dep graph artifacts
         run: |
