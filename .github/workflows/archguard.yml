@@ -3,6 +3,9 @@ name: Archguard Policy Check
 on:
   pull_request:
     branches: ["main"]
+  schedule:
+    - cron: '30 2 * * *'
+  workflow_dispatch:
 
 jobs:
   archguard:
@@ -12,16 +15,24 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: npm ci
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install --no-audit --no-fund
       - name: Run tests
         run: npm test
       - name: Run ARCHGUARD analysis
-        run: npm run analyze
+        run: |
+          node src/cli.js --policy examples/policy.yaml --out findings_raw.json --fail-on critical
+          node scripts/apply_baseline.js \
+            --in findings_raw.json \
+            --out findings.json \
+            --baseline config/archguard-baseline.json \
+            --summary findings_summary.json \
+            --fail-on high
       - name: Upload findings
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: archguard-findings
-          path: findings.json
+          path: |
+            findings.json
+            findings_summary.json

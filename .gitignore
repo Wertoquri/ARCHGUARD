@@ -6,3 +6,6 @@ yarn-error.log
 dist
 coverage
 .DS_Store
+.vscode/
+tmp_artifacts/
+migration_bundle_auto/

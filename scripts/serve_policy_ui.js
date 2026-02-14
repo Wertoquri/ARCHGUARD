@@ -11,8 +11,78 @@ app.use(express.json({ limit: '1mb' }));
 const port = process.env.PORT || 5174;
 
 const uiDir = path.join(process.cwd(), 'policy-ui');
+const findingsUiDir = path.join(process.cwd(), 'findings-ui');
 
 app.use(express.static(uiDir));
+app.use('/findings-ui', express.static(findingsUiDir));
+
+function safeResolveFindingsPath(inputPath) {
+  const cwd = process.cwd();
+  const normalized = inputPath || 'findings.json';
+  const abs = path.resolve(cwd, normalized);
+  if (!abs.startsWith(cwd)) {
+    return null;
+  }
+  return abs;
+}
+
+app.get('/api/findings', (req, res) => {
+  const target = safeResolveFindingsPath(req.query.file);
+  if (!target) {
+    return res.status(400).json({ error: 'Invalid findings path' });
+  }
+  if (!fs.existsSync(target)) {
+    return res.status(404).json({ error: 'Findings file not found', file: target });
+  }
+  try {
+    const raw = fs.readFileSync(target, 'utf8');
+    const findings = JSON.parse(raw);
+    return res.json({ ok: true, file: target, findings });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to parse findings', details: String(err) });
+  }
+});
+
+app.get('/api/findings/summary', (req, res) => {
+  const target = safeResolveFindingsPath(req.query.file);
+  if (!target) {
+    return res.status(400).json({ error: 'Invalid findings path' });
+  }
+  if (!fs.existsSync(target)) {
+    return res.status(404).json({ error: 'Findings file not found', file: target });
+  }
+
+  try {
+    const raw = fs.readFileSync(target, 'utf8');
+    const findings = JSON.parse(raw);
+    const modules = Array.isArray(findings.moduleMetrics) ? findings.moduleMetrics : [];
+    const violations = Array.isArray(findings.violations) ? findings.violations : [];
+    const topRisk = modules
+      .slice()
+      .sort((a, b) => (b.changeRiskScore || 0) - (a.changeRiskScore || 0))
+      .slice(0, 10);
+
+    const bySeverity = { low: 0, medium: 0, high: 0, critical: 0 };
+    for (const v of violations) {
+      if (bySeverity[v.severity] !== undefined) {
+        bySeverity[v.severity] += 1;
+      }
+    }
+
+    return res.json({
+      ok: true,
+      file: target,
+      generatedAt: findings.generatedAt || null,
+      globalMetrics: findings.globalMetrics || {},
+      riskSummary: findings.riskSummary || {},
+      totalViolations: violations.length,
+      bySeverity,
+      topRisk,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to build summary', details: String(err) });
+  }
+});
 
 app.get('/api/policy', (req, res) => {
   const policyPath = path.join(process.cwd(), 'examples', 'policy.yaml');
@@ -177,4 +247,5 @@ app.post('/api/save_and_pr', (req, res) => {
 
 app.listen(port, () => {
   console.log(`Policy UI running at http://localhost:${port}/`);
+  console.log(`Findings dashboard at http://localhost:${port}/findings-ui/`);
 });

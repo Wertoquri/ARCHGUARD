@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ARCHGUARD Findings Dashboard</title>
+    <link rel="stylesheet" href="/findings-ui/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>ARCHGUARD Findings Dashboard</h1>
+      <p class="hint">Load any findings JSON file from repository root (example: <code>findings.json</code> or <code>tmp_artifacts/findings.filtered.json</code>).</p>
+
+      <section class="card controls">
+        <label for="filePath">Findings file path</label>
+        <input id="filePath" type="text" value="findings.json" />
+        <button id="loadBtn">Load</button>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Global Metrics</h2>
+          <ul id="globalMetrics"></ul>
+        </article>
+        <article class="card">
+          <h2>Risk Summary</h2>
+          <ul id="riskSummary"></ul>
+        </article>
+        <article class="card">
+          <h2>Violations by Severity</h2>
+          <ul id="severity"></ul>
+        </article>
+      </section>
+
+      <section class="card">
+        <h2>Top Risk Modules</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>Risk</th>
+              <th>LOC</th>
+              <th>Fan-In</th>
+              <th>Fan-Out</th>
+              <th>Core</th>
+            </tr>
+          </thead>
+          <tbody id="topRiskRows"></tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2>Violations</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Severity</th>
+              <th>Rule</th>
+              <th>Location</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody id="violationRows"></tbody>
+        </table>
+      </section>
+
+      <p id="status" class="status"></p>
+    </main>
+
+    <script src="/findings-ui/app.js" type="module"></script>
+  </body>
+</html>

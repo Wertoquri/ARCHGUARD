@@ -148,6 +148,88 @@ See the workflow definitions in `.github/workflows/`.
 
 You can view CI run details here: [.github/workflows/ci.yml](.github/workflows/ci.yml)
 
+### CI fail gate + baseline allowlist
+
+- CI now enforces failure on `high` and `critical` violations **after** applying baseline allowlist entries.
+- Baseline file location: `config/archguard-baseline.json`
+- Baseline format:
+
+```json
+{
+  "ignoredViolations": [
+    {
+      "ruleId": "R-001",
+      "type": "forbidden_dependency",
+      "from": "src/legacy/a.js",
+      "to": "src/legacy/b.js",
+      "messageContains": "temporary exemption"
+    }
+  ]
+}
+```
+
+- Filtering utility:
+
+```bash
+node scripts/apply_baseline.js \
+  --in findings_raw.json \
+  --out findings.json \
+  --baseline config/archguard-baseline.json \
+  --summary findings_summary.json \
+  --fail-on high
+```
+
+### Nightly ARCHGUARD scans
+
+- `.github/workflows/ci.yml` includes a nightly scheduled scan job (`nightly-archguard`) and `workflow_dispatch` trigger.
+- The job uploads `nightly-archguard-findings` artifact with filtered findings and severity summary.
+
+### Optional Slack/Teams webhook alert
+
+- If repo secret `ARCHGUARD_WEBHOOK_URL` is set, CI sends a webhook message when high/critical findings remain after baseline filtering.
+
+## Findings Dashboard UI
+
+- Dashboard path: `http://localhost:5174/findings-ui/`
+- Start server:
+
+```bash
+npm run findings-ui
+```
+
+- Supported API endpoints:
+  - `GET /api/findings?file=<path>`
+  - `GET /api/findings/summary?file=<path>`
+
+Examples:
+- `findings.json`
+- `tmp_artifacts/findings.filtered.json`
+
+The dashboard shows:
+- Global metrics
+- Risk summary
+- Violations by severity
+- Top risk modules
+- Full violations table
+
+## Auto-create Migration PRs
+
+- Workflow: `.github/workflows/auto-migration-pr.yml`
+- Triggers:
+  - nightly schedule
+  - manual `workflow_dispatch`
+- Flow:
+  1. Runs ARCHGUARD analysis
+  2. Applies baseline filter
+  3. Generates migration bundle via `--dry-run --patch-out migration_bundle_auto`
+  4. If violations remain and bundle has files, opens auto-generated PR using `peter-evans/create-pull-request`
+
+### Dependency and Action security updates
+
+- Dependabot config added in `.github/dependabot.yml` for:
+  - npm dependencies
+  - GitHub Actions dependencies
+
 ## Local development & debugging
 
 Follow these steps to run ARCHGUARD locally, run tests, and reproduce CI results.

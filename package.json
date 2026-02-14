@@ -23,6 +23,7 @@
     "depgraph:render": "node scripts/render_dep_graph.js",
     "depgraph:all": "npm run depgraph && npm run depgraph:render"
     ,"policy-ui": "node scripts/serve_policy_ui.js"
+    ,"findings-ui": "node scripts/serve_policy_ui.js"
   },
   
   "devDependencies": {
