@@ -6,6 +6,8 @@ import Ajv from 'ajv';
 import multer from 'multer';
 import { exec } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'module';
+import registerWorkflowsApi from '../src/api/workflows.js';
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
@@ -18,6 +20,13 @@ const figmaUiDistDir = path.join(process.cwd(), 'FigmaUI', 'dist');
 app.use(express.static(uiDir));
 app.use('/findings-ui', express.static(findingsUiDir));
 app.use('/figma-ui', express.static(figmaUiDistDir));
+
+// register workflows API from src/api/workflows.js
+try {
+  registerWorkflowsApi(app);
+} catch (e) {
+  console.error('Failed to register workflows API', e && e.stack ? e.stack : e);
+}
 
 function safeResolveFindingsPath(inputPath) {
   const cwd = process.cwd();
