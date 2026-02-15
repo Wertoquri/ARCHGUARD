@@ -1,74 +1,63 @@
-import fs from 'fs/promises';
-import path from 'path';
+import knex from '../db/knex.js';
 import { randomUUID } from 'crypto';
 
-const DATA_DIR = path.resolve(process.cwd(), 'data', 'workflows');
-
-async function ensureDir() {
-  try {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-  } catch (e) {
-    console.debug('ensureDir failed for workflows:', e && e.message);
-  }
-}
-
-function fileFor(id) {
-  return path.join(DATA_DIR, `${id}.json`);
-}
-
 export async function listWorkflows() {
-  await ensureDir();
-  const files = await fs.readdir(DATA_DIR).catch(() => []);
-  const data = [];
-  for (const f of files) {
-    if (!f.endsWith('.json')) continue;
-    try {
-      const j = JSON.parse(await fs.readFile(path.join(DATA_DIR, f), 'utf8'));
-      data.push(j);
-    } catch (e) {
-      console.debug('skipping invalid workflow file', f, e && e.message);
-    }
-  }
-  return data;
+  const rows = await knex('workflows').select('*');
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    version: r.version,
+    description: r.description,
+    triggers: r.triggers ? JSON.parse(r.triggers) : [],
+    steps: r.steps ? JSON.parse(r.steps) : [],
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt,
+  }));
 }
 
 export async function createWorkflow(payload) {
-  await ensureDir();
   const id = payload.id || randomUUID();
   const now = Date.now();
-  const wf = Object.assign(
-    {
-      id,
-      version: payload.version || '0.1.0',
-      name: payload.name || `workflow-${id.slice(0, 6)}`,
-      description: payload.description || '',
-      triggers: payload.triggers || [],
-      steps: payload.steps || [],
-      createdAt: now,
-      updatedAt: now,
-    },
-    payload
-  );
-  await fs.writeFile(fileFor(id), JSON.stringify(wf, null, 2), 'utf8');
-  return wf;
+  const wf = {
+    id,
+    version: payload.version || '0.1.0',
+    name: payload.name || `workflow-${id.slice(0, 6)}`,
+    description: payload.description || '',
+    triggers: JSON.stringify(payload.triggers || []),
+    steps: JSON.stringify(payload.steps || []),
+    createdAt: now,
+    updatedAt: now,
+  };
+  await knex('workflows').insert(wf);
+  return {
+    ...wf,
+    triggers: JSON.parse(wf.triggers),
+    steps: JSON.parse(wf.steps),
+  };
 }
 
 export async function getWorkflow(id) {
-  try {
-    const txt = await fs.readFile(fileFor(id), 'utf8');
-    return JSON.parse(txt);
-  } catch (e) {
-    return null;
-  }
+  const row = await knex('workflows').where({ id }).first();
+  if (!row) return null;
+  return {
+    id: row.id,
+    name: row.name,
+    version: row.version,
+    description: row.description,
+    triggers: row.triggers ? JSON.parse(row.triggers) : [],
+    steps: row.steps ? JSON.parse(row.steps) : [],
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
 }
 
 export async function updateWorkflow(id, updates) {
-  const wf = (await getWorkflow(id)) || {};
   const now = Date.now();
-  const merged = Object.assign({}, wf, updates, { updatedAt: now });
-  await ensureDir();
-  await fs.writeFile(fileFor(id), JSON.stringify(merged, null, 2), 'utf8');
-  return merged;
+  const toUpdate = { ...updates, updatedAt: now };
+  if (toUpdate.triggers) toUpdate.triggers = JSON.stringify(toUpdate.triggers);
+  if (toUpdate.steps) toUpdate.steps = JSON.stringify(toUpdate.steps);
+  await knex('workflows').where({ id }).update(toUpdate);
+  return getWorkflow(id);
 }
 
 export default {

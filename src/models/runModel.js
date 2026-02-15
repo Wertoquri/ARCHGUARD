@@ -1,74 +1,76 @@
-import fs from 'fs/promises';
-import path from 'path';
+import knex from '../db/knex.js';
 import { randomUUID } from 'crypto';
 
-const DATA_DIR = path.resolve(process.cwd(), 'data', 'workflow-runs');
-
-async function ensureDir() {
-  try {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-  } catch (e) {
-    console.debug('ensureDir failed for workflow-runs:', e && e.message);
-  }
-}
-
-function fileFor(id) {
-  return path.join(DATA_DIR, `${id}.json`);
-}
-
 export async function createRun(workflowId, opts = {}) {
-  await ensureDir();
   const id = opts.id || randomUUID();
   const now = Date.now();
   const run = {
     id,
-    workflowId,
+    workflow_id: workflowId,
     status: opts.status || 'pending',
     startedAt: opts.startedAt || null,
     finishedAt: opts.finishedAt || null,
     currentStepId: opts.currentStepId || null,
-    log: opts.log || [],
-    meta: opts.meta || {},
+    log: JSON.stringify(opts.log || []),
+    meta: JSON.stringify(opts.meta || {}),
     createdAt: now,
     updatedAt: now,
   };
-  await fs.writeFile(fileFor(id), JSON.stringify(run, null, 2), 'utf8');
-  return run;
+  await knex('workflow_runs').insert(run);
+  return {
+    id: run.id,
+    workflowId: workflowId,
+    status: run.status,
+    startedAt: run.startedAt,
+    finishedAt: run.finishedAt,
+    currentStepId: run.currentStepId,
+    log: JSON.parse(run.log),
+    meta: JSON.parse(run.meta),
+    createdAt: run.createdAt,
+    updatedAt: run.updatedAt,
+  };
 }
 
 export async function getRun(id) {
-  try {
-    const txt = await fs.readFile(fileFor(id), 'utf8');
-    return JSON.parse(txt);
-  } catch (e) {
-    // file missing or invalid
-    return null;
-  }
+  const row = await knex('workflow_runs').where({ id }).first();
+  if (!row) return null;
+  return {
+    id: row.id,
+    workflowId: row.workflow_id,
+    status: row.status,
+    startedAt: row.startedAt,
+    finishedAt: row.finishedAt,
+    currentStepId: row.currentStepId,
+    log: row.log ? JSON.parse(row.log) : [],
+    meta: row.meta ? JSON.parse(row.meta) : {},
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
 }
 
 export async function updateRun(id, updates) {
-  const r = (await getRun(id)) || {};
   const now = Date.now();
-  const merged = Object.assign({}, r, updates, { updatedAt: now });
-  await ensureDir();
-  await fs.writeFile(fileFor(id), JSON.stringify(merged, null, 2), 'utf8');
-  return merged;
+  const toUpdate = { ...updates, updatedAt: now };
+  if (toUpdate.log) toUpdate.log = JSON.stringify(toUpdate.log);
+  if (toUpdate.meta) toUpdate.meta = JSON.stringify(toUpdate.meta);
+  await knex('workflow_runs').where({ id }).update(toUpdate);
+  return getRun(id);
 }
 
 export async function listRunsForWorkflow(workflowId) {
-  await ensureDir();
-  const files = await fs.readdir(DATA_DIR).catch(() => []);
-  const out = [];
-  for (const f of files) {
-    if (!f.endsWith('.json')) continue;
-    try {
-      const j = JSON.parse(await fs.readFile(path.join(DATA_DIR, f), 'utf8'));
-      if (!workflowId || j.workflowId === workflowId) out.push(j);
-    } catch (e) {
-      console.debug('skipping invalid run file', f, e && e.message);
-    }
-  }
-  return out;
+  const rows = await knex('workflow_runs').where({ workflow_id: workflowId }).select('*');
+  return rows.map((r) => ({
+    id: r.id,
+    workflowId: r.workflow_id,
+    status: r.status,
+    startedAt: r.startedAt,
+    finishedAt: r.finishedAt,
+    currentStepId: r.currentStepId,
+    log: r.log ? JSON.parse(r.log) : [],
+    meta: r.meta ? JSON.parse(r.meta) : {},
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt,
+  }));
 }
 
 export default {
