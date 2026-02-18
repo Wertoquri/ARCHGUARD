@@ -42,6 +42,19 @@ jobs:
       - name: Run coverage (optional)
         run: npm run coverage --silent || echo "No coverage generated"
 
+      - name: Debug: show coverage lcov
+        run: |
+          echo "Coverage lcov path: coverage/lcov.info"
+          if [ -f coverage/lcov.info ]; then
+            wc -c coverage/lcov.info || true
+            echo '--- head of coverage/lcov.info ---'
+            head -n 50 coverage/lcov.info || true
+          else
+            echo 'coverage/lcov.info not found'
+          fi
+          echo '--- coverage directory listing ---'
+          ls -la coverage || true
+
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
