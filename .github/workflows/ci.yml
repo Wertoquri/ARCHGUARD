@@ -289,6 +289,17 @@ jobs:
       - name: Run tests
         run: npm test --silent
 
+      - name: Run coverage (optional)
+        run: npm run coverage --silent || echo "No coverage generated"
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage
+            coverage/**
+
       - name: Run ARCHGUARD analysis
         run: |
           node src/cli.js --policy examples/policy.yaml --out findings_raw.json --fail-on critical
