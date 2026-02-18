@@ -3,6 +3,10 @@
 [![Archguard CI](https://github.com/Wertoquri/ARCHGUARD/actions/workflows/archguard.yml/badge.svg)](https://github.com/Wertoquri/ARCHGUARD/actions/workflows/archguard.yml)
 [![CI (lint & migration tests)](https://github.com/Wertoquri/ARCHGUARD/actions/workflows/ci.yml/badge.svg)](https://github.com/Wertoquri/ARCHGUARD/actions/workflows/ci.yml)
 
+Repository note: The repository default branch is `main`. Update local clones with `git fetch origin && git checkout main`.
+
+Verification: pushed a small commit on 2026-02-18 to confirm `main` is active and writable.
+
 ARCHGUARD is an architectural firewall for software systems. It analyzes source code dependencies, validates them against explicit architectural policies, and produces deterministic, CI-ready findings. AI explainability is optional and only consumes structured findings, never raw source code.
 
 ## Why this project exists
