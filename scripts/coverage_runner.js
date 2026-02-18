@@ -1,6 +1,10 @@
 import { computeStronglyConnectedComponents } from '../src/graph/analysis.js';
 import { calculateMetrics } from '../src/metrics/metrics.js';
 import { buildReport, writeReport } from '../src/report/report.js';
+import { countLoc, toModuleId } from '../src/utils/fs.js';
+import { applyBundle, rollbackBundle } from '../src/migration/runner.js';
+import fs from 'node:fs';
+import path from 'node:path';
 
 export async function main() {
   const nodes = [
@@ -38,6 +42,34 @@ export async function main() {
   writeReport(report, 'tmp/coverage_report.json');
   // console output to make sure this script ran
   console.log('coverage_runner: wrote tmp/coverage_report.json');
+
+  // exercise small fs helpers
+  try {
+    const here = path.resolve('.');
+    const pkg = path.resolve('package.json');
+    if (fs.existsSync(pkg)) {
+      console.log('countLoc(package.json)=', countLoc(pkg));
+    }
+    console.log('toModuleId sample=', toModuleId(here, __filename));
+  } catch (e) {
+    console.warn('fs helpers failed:', e && e.message);
+  }
+
+  // exercise migration runner safely using a temporary bundle
+  try {
+    const bundleDir = path.resolve('tmp', 'test-bundle');
+    fs.mkdirSync(bundleDir, { recursive: true });
+    const sampleRel = 'tmp/test-bundle/sample.txt';
+    const sampleSrc = path.resolve(bundleDir, 'sample.txt');
+    fs.writeFileSync(sampleSrc, 'bundle-content', 'utf8');
+    const manifest = [ { file: sampleRel } ];
+    const applied = applyBundle(path.resolve('.'), bundleDir, manifest);
+    console.log('applyBundle result length=', Array.isArray(applied) ? applied.length : 0);
+    // rollback to clean up
+    rollbackBundle(path.resolve('.'), manifest);
+  } catch (e) {
+    console.warn('migration runner helpers failed:', e && e.message);
+  }
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

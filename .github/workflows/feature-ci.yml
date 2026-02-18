@@ -86,6 +86,13 @@ jobs:
           console.log('Wrote coverage/coverage_summary.json with', Object.keys(out).length, 'entries');
           NODE
 
+      - name: Upload coverage summary JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-summary-json
+          path: coverage/coverage_summary.json
+
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
