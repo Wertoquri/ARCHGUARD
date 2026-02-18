@@ -1,6 +1,18 @@
 import knex from '../db/knex.js';
 import { randomUUID } from 'crypto';
 
+export function safeParseJson(v, fallback) {
+  if (v == null) return fallback;
+  if (typeof v === 'string') {
+    try {
+      return JSON.parse(v);
+    } catch (_) {
+      return fallback;
+    }
+  }
+  return v;
+}
+
 export async function createRun(workflowId, opts = {}) {
   const id = opts.id || randomUUID();
   const now = Date.now();
@@ -24,8 +36,8 @@ export async function createRun(workflowId, opts = {}) {
     startedAt: run.startedAt,
     finishedAt: run.finishedAt,
     currentStepId: run.currentStepId,
-    log: JSON.parse(run.log),
-    meta: JSON.parse(run.meta),
+    log: safeParseJson(run.log, []),
+    meta: safeParseJson(run.meta, {}),
     createdAt: run.createdAt,
     updatedAt: run.updatedAt,
   };
@@ -41,28 +53,8 @@ export async function getRun(id) {
     startedAt: row.startedAt,
     finishedAt: row.finishedAt,
     currentStepId: row.currentStepId,
-    log: (function (v) {
-      if (v == null) return [];
-      if (typeof v === 'string') {
-        try {
-          return JSON.parse(v);
-        } catch (_) {
-          return [];
-        }
-      }
-      return v;
-    })(row.log),
-    meta: (function (v) {
-      if (v == null) return {};
-      if (typeof v === 'string') {
-        try {
-          return JSON.parse(v);
-        } catch (_) {
-          return {};
-        }
-      }
-      return v;
-    })(row.meta),
+    log: safeParseJson(row.log, []),
+    meta: safeParseJson(row.meta, {}),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -86,28 +78,8 @@ export async function listRunsForWorkflow(workflowId) {
     startedAt: r.startedAt,
     finishedAt: r.finishedAt,
     currentStepId: r.currentStepId,
-    log: (function (v) {
-      if (v == null) return [];
-      if (typeof v === 'string') {
-        try {
-          return JSON.parse(v);
-        } catch (_) {
-          return [];
-        }
-      }
-      return v;
-    })(r.log),
-    meta: (function (v) {
-      if (v == null) return {};
-      if (typeof v === 'string') {
-        try {
-          return JSON.parse(v);
-        } catch (_) {
-          return {};
-        }
-      }
-      return v;
-    })(r.meta),
+    log: safeParseJson(r.log, []),
+    meta: safeParseJson(r.meta, {}),
     createdAt: r.createdAt,
     updatedAt: r.updatedAt,
   }));
