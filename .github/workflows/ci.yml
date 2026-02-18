@@ -295,16 +295,27 @@ jobs:
 
       - name: Debug: show coverage lcov
         run: |
+          echo "Node:", $(node -v) || true
+          echo "NPM:", $(npm -v) || true
+          echo "c8 version:"; npx c8 --version || true
           echo "Coverage lcov path: coverage/lcov.info"
           if [ -f coverage/lcov.info ]; then
+            echo '--- size (bytes) ---'
             wc -c coverage/lcov.info || true
-            echo '--- head of coverage/lcov.info ---'
-            head -n 50 coverage/lcov.info || true
+            echo '--- head (first 200 lines) ---'
+            head -n 200 coverage/lcov.info || true
+            echo '--- tail (last 50 lines) ---'
+            tail -n 50 coverage/lcov.info || true
+            echo '--- non-zero DA entries (sample 20) ---'
+            grep -E 'DA:[0-9]+,[1-9]' coverage/lcov.info | head -n 20 || true
+            echo '--- non-zero DA count ---'
+            grep -E 'DA:[0-9]+,[1-9]' coverage/lcov.info | wc -l || true
           else
             echo 'coverage/lcov.info not found'
           fi
-          echo '--- coverage directory listing ---'
+          echo '--- coverage directory listing (recursive) ---'
           ls -la coverage || true
+          find coverage -type f -maxdepth 3 -exec ls -l {} \; || true
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
