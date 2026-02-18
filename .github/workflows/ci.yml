@@ -293,7 +293,7 @@ jobs:
       - name: Run coverage (optional)
         run: npm run coverage --silent || echo "No coverage generated"
 
-      - name: Debug: show coverage lcov
+      - name: "Debug: show coverage lcov"
         run: |
           echo "Node:", $(node -v) || true
           echo "NPM:", $(npm -v) || true
