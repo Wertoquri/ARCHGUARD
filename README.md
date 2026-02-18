@@ -20,8 +20,6 @@ In short: it turns architecture governance from a document into an enforceable, 
 
 ### 1) Preflight
 
-- Recommended: Node.js 20+
-- Run commands from repository root
 
 ```bash
 node -v
@@ -44,8 +42,6 @@ node scripts/serve_policy_ui.js
 
 Default URL:
 
-- Figma UI: `http://localhost:5174/figma-ui/`
-- API bootstrap: `http://localhost:5174/api/ui/bootstrap`
 
 ### 4) Smoke check
 
@@ -67,18 +63,65 @@ Expected: JSON with `ok: true`.
 
 ### 6) Troubleshooting
 
-- If server port is busy, run with another port:
 
 ```bash
 # PowerShell
 $env:PORT=5175; node scripts/serve_policy_ui.js
 ```
 
-- If UI is stale after changes, rebuild:
 
 ```bash
 npm run figma-ui:build
 ```
+
+## Quickstart (Development)
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Set MySQL env vars and create database (example):
+
+```powershell
+$env:MYSQL_HOST='127.0.0.1'
+$env:MYSQL_PORT='3306'
+$env:MYSQL_USER='root'
+$env:MYSQL_PASSWORD='root'
+$env:MYSQL_DATABASE='ARCHGUARD'
+```
+
+3. Run migrations:
+
+```bash
+node scripts/db_migrate.js
+```
+
+4. Seed example workflows:
+
+```bash
+node scripts/seed_workflows.js
+```
+
+5. Start policy UI / API server (development):
+
+```bash
+node scripts/serve_policy_ui.js
+# or
+npm run policy-ui
+```
+
+6. Run example workflow (uses `BASE_URL` env var):
+
+```powershell
+$env:BASE_URL='http://localhost:5175'
+node scripts/run_workflow.js
+```
+
+## Packaging / Release
+
+See `PRE_SUBMISSION_CHECKLIST.md` for steps to create a release bundle.
 
 ## UI language localization
 

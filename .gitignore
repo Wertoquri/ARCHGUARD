@@ -9,3 +9,14 @@ coverage
 .vscode/
 tmp_artifacts/
 migration_bundle_auto/
+
+# IDE / temp
+.idea/
+tmp/
+tmp_*
+tmp_fetch.js
+tmp_raw_run.js
+check_env.js
+tmp/findings_ui_action_*.json
+tmp/removal_requests/
+data/workflow-runs/
