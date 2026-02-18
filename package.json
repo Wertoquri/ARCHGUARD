@@ -15,7 +15,7 @@
     "prepare": "husky install",
     "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix",
     "test": "vitest run",
-    "coverage": "c8 --reporter=lcov --reporter=text vitest run",
+    "coverage": "vitest run --coverage",
     "demo": "node scripts/demo_run.js",
     "analyze": "node src/cli.js --policy examples/policy.yaml --out findings.json --fail-on high",
     "analyze:ai": "node src/cli.js --policy examples/policy.yaml --out findings.json --ai-summary ai_summary.txt",
