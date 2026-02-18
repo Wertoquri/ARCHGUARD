@@ -41,8 +41,28 @@ export async function getRun(id) {
     startedAt: row.startedAt,
     finishedAt: row.finishedAt,
     currentStepId: row.currentStepId,
-    log: row.log ? JSON.parse(row.log) : [],
-    meta: row.meta ? JSON.parse(row.meta) : {},
+    log: (function (v) {
+      if (v == null) return [];
+      if (typeof v === 'string') {
+        try {
+          return JSON.parse(v);
+        } catch (_) {
+          return [];
+        }
+      }
+      return v;
+    })(row.log),
+    meta: (function (v) {
+      if (v == null) return {};
+      if (typeof v === 'string') {
+        try {
+          return JSON.parse(v);
+        } catch (_) {
+          return {};
+        }
+      }
+      return v;
+    })(row.meta),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -66,8 +86,28 @@ export async function listRunsForWorkflow(workflowId) {
     startedAt: r.startedAt,
     finishedAt: r.finishedAt,
     currentStepId: r.currentStepId,
-    log: r.log ? JSON.parse(r.log) : [],
-    meta: r.meta ? JSON.parse(r.meta) : {},
+    log: (function (v) {
+      if (v == null) return [];
+      if (typeof v === 'string') {
+        try {
+          return JSON.parse(v);
+        } catch (_) {
+          return [];
+        }
+      }
+      return v;
+    })(r.log),
+    meta: (function (v) {
+      if (v == null) return {};
+      if (typeof v === 'string') {
+        try {
+          return JSON.parse(v);
+        } catch (_) {
+          return {};
+        }
+      }
+      return v;
+    })(r.meta),
     createdAt: r.createdAt,
     updatedAt: r.updatedAt,
   }));
