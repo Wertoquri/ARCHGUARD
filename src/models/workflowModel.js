@@ -1,6 +1,19 @@
 import knex from '../db/knex.js';
 import { randomUUID } from 'crypto';
 
+function safeParseJson(value, fallback = []) {
+  if (value === null || value === undefined) return fallback;
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch (e) {
+      return fallback;
+    }
+  }
+  // already a parsed object/array
+  return value;
+}
+
 export async function listWorkflows() {
   const rows = await knex('workflows').select('*');
   return rows.map((r) => ({
@@ -8,8 +21,8 @@ export async function listWorkflows() {
     name: r.name,
     version: r.version,
     description: r.description,
-    triggers: r.triggers ? JSON.parse(r.triggers) : [],
-    steps: r.steps ? JSON.parse(r.steps) : [],
+    triggers: safeParseJson(r.triggers, []),
+    steps: safeParseJson(r.steps, []),
     createdAt: r.createdAt,
     updatedAt: r.updatedAt,
   }));
@@ -31,8 +44,8 @@ export async function createWorkflow(payload) {
   await knex('workflows').insert(wf);
   return {
     ...wf,
-    triggers: JSON.parse(wf.triggers),
-    steps: JSON.parse(wf.steps),
+    triggers: safeParseJson(wf.triggers, []),
+    steps: safeParseJson(wf.steps, []),
   };
 }
 
@@ -44,8 +57,8 @@ export async function getWorkflow(id) {
     name: row.name,
     version: row.version,
     description: row.description,
-    triggers: row.triggers ? JSON.parse(row.triggers) : [],
-    steps: row.steps ? JSON.parse(row.steps) : [],
+    triggers: safeParseJson(row.triggers, []),
+    steps: safeParseJson(row.steps, []),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };

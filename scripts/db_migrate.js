@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import knex from '../src/db/knex.js';
 
 async function runMigrations() {
@@ -24,6 +25,7 @@ async function runMigrations() {
   await knex.destroy();
 }
 
-if (require.main === module) {
+const __filename = fileURLToPath(import.meta.url);
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename)) {
   runMigrations().catch(err => { console.error(err); process.exit(1); });
 }
