@@ -398,6 +398,22 @@ CI artifacts now include correlated risk outputs:
 ## Findings Dashboard UI
 
 - Dashboard path: `http://localhost:5174/findings-ui/`
+
+## Coverage reports
+
+- CI now uploads a coverage artifact named `coverage-report` for jobs that run tests. You can download the artifact from the workflow run page (Actions → select run → Artifacts → `coverage-report`) or with the `gh` CLI:
+
+```
+gh run download <run-number> --repo Wertoquri/ARCHGUARD --name coverage-report --dir tmp/coverage-artifact
+```
+
+- To generate coverage locally, run:
+
+```
+npm run coverage
+```
+
+The local `coverage/` directory contains `lcov.info` and an `lcov-report/` HTML view.
 - Start server:
 
 ```bash

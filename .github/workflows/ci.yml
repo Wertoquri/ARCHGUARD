@@ -439,6 +439,16 @@ jobs:
           sudo apt-get update -y && sudo apt-get install -y zip || true
           zip -j docs/dep_graph_artifacts.zip docs/dep_graph.json docs/dep_graph.png
 
+      - name: Zip coverage artifacts
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y zip || true
+          if [ -d coverage ]; then
+            zip -r docs/coverage_artifacts.zip coverage || true
+          else
+            echo "No coverage directory found, skipping coverage ZIP"
+          fi
+
       - name: Create draft GitHub release and upload dep-graph ZIP
         if: startsWith(github.ref, 'refs/tags/')
         id: create_release
@@ -461,4 +471,13 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: docs/dep_graph_artifacts.zip
           asset_name: dep_graph_artifacts_${{ github.ref_name }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload coverage ZIP to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: docs/coverage_artifacts.zip
+          asset_name: coverage_report_${{ github.ref_name }}.zip
           asset_content_type: application/zip

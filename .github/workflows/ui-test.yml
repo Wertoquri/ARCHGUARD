@@ -37,6 +37,19 @@ jobs:
         env:
           CI: true
 
+      - name: Run coverage (optional)
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: npm run coverage --silent || echo "No coverage generated"
+
+      - name: Upload coverage artifact
+        if: steps.check_figma.outputs.figma_present == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage
+            coverage/**
+
       - name: Skip UI tests message
         if: steps.check_figma.outputs.figma_present == 'false'
         run: echo "FigmaUI folder not present — skipping UI integration tests."
