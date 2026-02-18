@@ -8,6 +8,7 @@ export default function registerWorkflowsApi(app) {
       const data = await workflows.listWorkflows();
       return res.json({ ok: true, workflows: data });
     } catch (e) {
+      console.error('GET /api/workflows error', e && e.stack ? e.stack : e);
       return res.status(500).json({ ok: false, error: 'failed to list workflows' });
     }
   });
