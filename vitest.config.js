@@ -5,12 +5,12 @@ export default defineConfig({
     environment: 'node',
     include: ['test/**', 'src/**'],
     globals: false,
-  },
-  coverage: {
-    provider: 'c8',
-    reporter: ['lcov', 'text'],
-    reportsDirectory: 'coverage',
-    include: ['src/**/*.js', 'src/**/*.ts', 'src/**/*.jsx', 'src/**/*.tsx'],
-    exclude: ['src/**/__tests__/**', 'test/**', 'node_modules/**'],
+    coverage: {
+      provider: 'c8',
+      reporter: ['lcov', 'text'],
+      reportsDirectory: 'coverage',
+      include: ['src/**/*.js', 'src/**/*.ts', 'src/**/*.jsx', 'src/**/*.tsx'],
+      exclude: ['src/**/__tests__/**', 'test/**', 'node_modules/**'],
+    },
   },
 })
