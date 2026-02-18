@@ -17,9 +17,26 @@ jobs:
           node-version: '24'
       - name: Install repo dependencies
         run: npm ci
+
+      - name: Check for FigmaUI directory
+        id: check_figma
+        run: |
+          if [ -d "FigmaUI" ]; then
+            echo "figma_present=true" >> $GITHUB_OUTPUT
+          else
+            echo "figma_present=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Install Figma UI deps
+        if: steps.check_figma.outputs.figma_present == 'true'
         run: npm --prefix FigmaUI ci
+
       - name: Run UI integration test
+        if: steps.check_figma.outputs.figma_present == 'true'
         run: npm run ci:ui-test
         env:
           CI: true
+
+      - name: Skip UI tests message
+        if: steps.check_figma.outputs.figma_present == 'false'
+        run: echo "FigmaUI folder not present — skipping UI integration tests."
