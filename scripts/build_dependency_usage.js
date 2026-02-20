@@ -53,7 +53,13 @@ async function run() {
     .filter(Boolean);
 
   const files = await fg(patterns, {
-    ignore: ['**/node_modules/**', '**/dist/**', '**/coverage/**'],
+    ignore: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/coverage/**',
+      '**/tmp/**',
+      '**/.git/**',
+    ],
     dot: false,
   });
 
@@ -71,7 +77,11 @@ async function run() {
     }
   }
 
-  fs.writeFileSync(path.resolve(outPath), JSON.stringify(usage, null, 2));
+  // Ensure the output directory exists (CI may write into `tmp/`)
+  const resolvedOut = path.resolve(outPath);
+  const outDir = path.dirname(resolvedOut);
+  fs.mkdirSync(outDir, { recursive: true });
+  fs.writeFileSync(resolvedOut, JSON.stringify(usage, null, 2));
   console.log(`Wrote dependency usage map to ${outPath}`);
 }
 
