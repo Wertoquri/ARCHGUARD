@@ -1,0 +1,40 @@
+rules:
+  - id: P-LEGACY-001
+    type: forbidden_dependency
+    from: domain/**
+    to: infrastructure/**
+    severity: high
+
+  - id: P-LEGACY-002
+    type: no_cycles
+    severity: high
+
+  - id: P-LEGACY-003
+    type: max_fan_in
+    threshold: 20
+    severity: medium
+
+  - id: P-LEGACY-004
+    type: max_fan_out
+    threshold: 24
+    severity: medium
+
+  - id: P-LEGACY-005
+    type: layer_matrix
+    severity: medium
+    allowSameLayer: true
+    layers:
+      domain: domain/**
+      application: application/**
+      infrastructure: infrastructure/**
+    allow:
+      - from: application
+        to: domain
+      - from: infrastructure
+        to: application
+      - from: infrastructure
+        to: domain
+
+exemptions:
+  - pattern: src/api.js
+    reason: "legacy entrypoint"

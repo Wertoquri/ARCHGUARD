@@ -1,0 +1,125 @@
+rules:
+  - id: R-001
+    type: forbidden_dependency
+    from: domain/**
+    to: infrastructure/**
+    severity: high
+  - id: R-002
+    type: max_fan_in
+    threshold: 10
+    severity: medium
+    exempt:
+      - src/api.js
+      - src/context/I18nContext.jsx
+  - id: R-003
+    type: no_cycles
+    severity: high
+  - id: R-004
+    type: max_fan_out
+    threshold: 12
+    severity: medium
+  - id: R-005
+    type: layer_matrix
+    severity: high
+    allowSameLayer: true
+    layers:
+      domain: domain/**
+      application: application/**
+      infrastructure: infrastructure/**
+    allow:
+      - from: application
+        to: domain
+      - from: infrastructure
+        to: application
+      - from: infrastructure
+        to: domain
+  - id: R-006
+    type: forbidden_dependency
+    from: domain/**
+    to: application/**
+    severity: medium
+    message: Domain layer must not depend directly on application layer
+  - id: R-007
+    type: max_fan_in
+    threshold: 15
+    severity: medium
+    exempt:
+      - src/context/I18nContext.jsx
+  - id: R-008
+    type: max_fan_out
+    threshold: 20
+    severity: medium
+  - id: R-009
+    type: layer_matrix
+    severity: high
+    allowSameLayer: false
+    layers:
+      domain: domain/**
+      application: application/**
+      infrastructure: infrastructure/**
+    allow:
+      - from: application
+        to: domain
+      - from: infrastructure
+        to: application
+  - id: R-UI-SMOKE-2
+    type: forbidden_dependency
+    from: src/a/**
+    to: src/b/**
+    severity: high
+  - id: R-UI-SMOKE-3
+    type: forbidden_dependency
+    from: src/test-a/**
+    to: src/test-b/**
+    severity: high
+  - id: R-UI-SMOKE-TEST
+    type: forbidden_dependency
+    from: src/a/**
+    to: src/b/**
+    severity: high
+  - id: R-UI-LAYER-DOMAIN-INFRA
+    name: UI Layer Guardrail
+    type: forbidden_dependency
+    from: src/domain/**
+    to: src/infrastructure/**
+    severity: high
+  - id: R-UI-SMOKE-4
+    type: forbidden_dependency
+    from: src/test-a/**
+    to: src/test-b/**
+    severity: high
+  - id: R-UI-SMOKE-9999
+    type: forbidden_dependency
+    from: src/test-a/**
+    to: src/test-b/**
+    severity: high
+  - id: R-UI-SMOKE-10001
+    type: forbidden_dependency
+    from: src/test-a/**
+    to: src/test-b/**
+    severity: high
+  - id: R-UI-SMOKE-10002
+    type: forbidden_dependency
+    from: src/test-a/**
+    to: src/test-b/**
+    severity: high
+  - id: R-UI-SMOKE-10003
+    type: forbidden_dependency
+    from: src/test-a/**
+    to: src/test-b/**
+    severity: high
+  - id: R-UI-SMOKE-10004
+    type: forbidden_dependency
+    from: src/test-a/**
+    to: src/test-b/**
+    severity: high
+  - id: R-UI-SMOKE-10005
+    type: forbidden_dependency
+    from: src/test-a/**
+    to: src/test-b/**
+    severity: high
+exemptions:
+  - pattern: src/api.js
+    reason: Legacy API façade — scheduled for refactor Q2
+  - pattern: src/context/I18nContext.jsx
+    reason: Centralized i18n provider used across UI; reviewed

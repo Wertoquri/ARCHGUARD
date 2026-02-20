@@ -1,0 +1,21 @@
+{
+  "owners": [
+    {
+      "pattern": "src/components/**",
+      "owner": "team-frontend"
+    },
+    {
+      "pattern": "src/context/**",
+      "owner": "team-platform"
+    },
+    {
+      "pattern": "src/api.js",
+      "owner": "team-platform"
+    },
+    {
+      "pattern": "backend/**",
+      "owner": "team-backend"
+    }
+  ],
+  "defaultOwner": "unowned"
+}

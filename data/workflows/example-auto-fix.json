@@ -1,0 +1,30 @@
+{
+  "id": "example-auto-fix",
+  "name": "Example: Auto-fix high severity findings",
+  "version": "0.1.0",
+  "triggers": [
+    { "type": "onScanResult", "config": { "minSeverity": "high" } }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "name": "Create remediation task",
+      "type": "action",
+      "action": {
+        "kind": "createIssue",
+        "parameters": { "project": "ops", "titleTemplate": "Remediate {{finding.id}}" }
+      },
+      "next": ["s2"]
+    },
+    {
+      "id": "s2",
+      "name": "Notify security team",
+      "type": "action",
+      "action": {
+        "kind": "notify",
+        "parameters": { "channel": "#sec-team", "messageTemplate": "Remediation task created for {{finding.id}}" }
+      },
+      "next": []
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "id": "run-1771171194105",
+  "workflowId": "example-auto-fix",
+  "status": "succeeded",
+  "startedAt": 1771171194113,
+  "finishedAt": 1771171194215,
+  "currentStepId": null,
+  "log": [
+    {
+      "ts": 1771171194137,
+      "level": "info",
+      "message": "Starting step s1: Create remediation task"
+    },
+    {
+      "ts": 1771171194153,
+      "level": "info",
+      "message": "Created issue issue-r59ef3",
+      "meta": {
+        "params": {
+          "project": "ops",
+          "titleTemplate": "Remediate {{finding.id}}"
+        }
+      }
+    },
+    {
+      "ts": 1771171194178,
+      "level": "info",
+      "message": "Completed step s1"
+    },
+    {
+      "ts": 1771171194197,
+      "level": "info",
+      "message": "Starting step s2: Notify security team"
+    },
+    {
+      "ts": 1771171194206,
+      "level": "info",
+      "message": "Notify: {\"channel\":\"#sec-team\",\"messageTemplate\":\"Remediation task created for {{finding.id}}\"}"
+    },
+    {
+      "ts": 1771171194214,
+      "level": "info",
+      "message": "Completed step s2"
+    },
+    {
+      "ts": 1771171194231,
+      "level": "info",
+      "message": "Workflow run completed"
+    }
+  ],
+  "meta": {
+    "context": {
+      "finding": {
+        "id": "F456",
+        "severity": "high"
+      }
+    },
+    "createdIssues": [
+      {
+        "id": "issue-r59ef3",
+        "params": {
+          "project": "ops",
+          "titleTemplate": "Remediate {{finding.id}}"
+        }
+      }
+    ]
+  },
+  "createdAt": 1771171194106,
+  "updatedAt": 1771171194231
+}

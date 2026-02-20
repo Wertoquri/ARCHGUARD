@@ -1,0 +1,20 @@
+rules:
+  - id: P-FE-001
+    type: forbidden_dependency
+    from: src/components/**
+    to: src/infrastructure/**
+    severity: high
+
+  - id: P-FE-002
+    type: max_fan_in
+    threshold: 18
+    severity: medium
+
+  - id: P-FE-003
+    type: max_fan_out
+    threshold: 14
+    severity: medium
+
+  - id: P-FE-004
+    type: no_cycles
+    severity: high

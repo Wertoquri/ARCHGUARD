@@ -12,32 +12,43 @@ import path from 'path';
     // debug: list visible button texts
     const btns = await page.$$eval('button', (nodes) => nodes.map(n => n.innerText.trim()).filter(Boolean));
     console.log('Buttons on page:', btns.slice(0,40));
-    // Navigate to Policy Studio
-    const [policyNav] = await page.$x("//button[contains(., 'Policy Studio')]");
-    if (!policyNav) throw new Error('Policy Studio nav button not found');
-    await page.evaluate(el => el.click(), policyNav);
+    // Navigate to Policy Studio (robust selector fallback)
+    const clickedPolicy = await page.$$eval('button', (nodes, txt) => {
+      const el = nodes.find(n => n.innerText && n.innerText.includes(txt));
+      if (el) { el.click(); return true; }
+      return false;
+    }, 'Policy Studio');
+    if (!clickedPolicy) throw new Error('Policy Studio nav button not found');
     await page.waitForTimeout(500);
 
     // Click 'New Policy' button (try english then fallback to any button containing 'New' or 'Нов')
-    let newBtn = null;
-    const searchX = ["//button[contains(., 'New Policy')]", "//button[contains(., 'New')]", "//button[contains(., 'Нова')]", "//button[contains(., 'Нов')]"];
-    for (const xp of searchX) {
-      const els = await page.$x(xp);
-      if (els && els.length > 0) { newBtn = els[0]; break; }
+    let newClicked = false;
+    const searchTexts = ['New Policy', 'New', 'Нова', 'Нов'];
+    for (const txt of searchTexts) {
+      newClicked = await page.$$eval('button', (nodes, txt) => {
+        const el = nodes.find(n => n.innerText && n.innerText.includes(txt));
+        if (el) { el.click(); return true; }
+        return false;
+      }, txt);
+      if (newClicked) break;
     }
-    if (!newBtn) throw new Error('New Policy button not found');
-    await newBtn.click();
+    if (!newClicked) throw new Error('New Policy button not found');
     await page.waitForTimeout(300);
 
     // Click 'Upload Policy Pack' in the new menu
-    const [uploadMenu] = await page.$x("//button[contains(., 'Upload Policy Pack')]");
-    if (!uploadMenu) throw new Error('Upload Policy Pack menu item not found');
-    await uploadMenu.click();
+    const clickedUploadMenu = await page.$$eval('button', (nodes, txt) => {
+      const el = nodes.find(n => n.innerText && n.innerText.includes(txt));
+      if (el) { el.click(); return true; }
+      return false;
+    }, 'Upload Policy Pack');
+    if (!clickedUploadMenu) throw new Error('Upload Policy Pack menu item not found');
 
     // Confirm open on modal (button with text 'Open')
-    await page.waitForXPath("//button[normalize-space(.)='Open']", { timeout: 5000 });
-    const [confirmOpen] = await page.$x("//button[normalize-space(.)='Open']");
-    await confirmOpen.click();
+    await page.waitForFunction((txt) => Array.from(document.querySelectorAll('button')).some(b => b.innerText && b.innerText.trim() === txt), { timeout: 5000 }, 'Open');
+    await page.$$eval('button', (nodes, txt) => {
+      const el = nodes.find(n => n.innerText && n.innerText.trim() === txt);
+      if (el) el.click();
+    }, 'Open');
 
     // Wait for add-pack panel and file input
     await page.waitForSelector('input[type=file]', { timeout: 5000 });
@@ -58,11 +69,14 @@ import path from 'path';
     });
 
     // Click Upload button
-    const [uploadBtn] = await page.$x("//button[normalize-space(.)='Upload'] | //button[normalize-space(.)='Завантажити']");
-    if (!uploadBtn) throw new Error('Upload button not found');
+    const uploadClicked = await page.$$eval('button', (nodes, t1, t2) => {
+      const el = nodes.find(n => n.innerText && (n.innerText.trim() === t1 || n.innerText.trim() === t2));
+      if (el) { el.click(); return true; }
+      return false;
+    }, 'Upload', 'Завантажити');
+    if (!uploadClicked) throw new Error('Upload button not found');
     // wait for the upload network request
     const waitForUpload = page.waitForResponse((resp) => resp.url().includes('/api/policy/packs/upload-with-version'), { timeout: 10000 });
-    await uploadBtn.click();
     const uploadResp = await waitForUpload.catch(() => null);
     if (!uploadResp) throw new Error('Upload request not observed');
     let uploadJson = null;

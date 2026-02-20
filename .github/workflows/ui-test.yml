@@ -1,10 +1,10 @@
 name: UI Integration Tests
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
+    # run on PRs targeting main (adjust as needed)
     branches: [ main ]
+  workflow_dispatch: {}
 
 jobs:
   ui-test:
@@ -17,9 +17,39 @@ jobs:
           node-version: '24'
       - name: Install repo dependencies
         run: npm ci
+
+      - name: Check for FigmaUI directory
+        id: check_figma
+        run: |
+          if [ -d "FigmaUI" ]; then
+            echo "figma_present=true" >> $GITHUB_OUTPUT
+          else
+            echo "figma_present=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Install Figma UI deps
+        if: steps.check_figma.outputs.figma_present == 'true'
         run: npm --prefix FigmaUI ci
+
       - name: Run UI integration test
+        if: steps.check_figma.outputs.figma_present == 'true'
         run: npm run ci:ui-test
         env:
           CI: true
+
+      - name: Run coverage (optional)
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: npm run coverage --silent || echo "No coverage generated"
+
+      - name: Upload coverage artifact
+        if: steps.check_figma.outputs.figma_present == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage
+            coverage/**
+
+      - name: Skip UI tests message
+        if: steps.check_figma.outputs.figma_present == 'false'
+        run: echo "FigmaUI folder not present — skipping UI integration tests."

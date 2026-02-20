@@ -1,0 +1,42 @@
+{
+  "name": "forbidden dependency emits violation",
+  "policy": {
+    "rules": [
+      {
+        "id": "T-001",
+        "type": "forbidden_dependency",
+        "from": "src/domain/**",
+        "to": "src/infrastructure/**",
+        "severity": "high"
+      }
+    ]
+  },
+  "edges": [
+    {
+      "from": "src/domain/order.js",
+      "to": "src/infrastructure/db.js"
+    },
+    {
+      "from": "src/application/usecase.js",
+      "to": "src/domain/order.js"
+    }
+  ],
+  "moduleMetrics": [
+    {
+      "id": "src/domain/order.js",
+      "fanIn": 1,
+      "fanOut": 1
+    },
+    {
+      "id": "src/infrastructure/db.js",
+      "fanIn": 1,
+      "fanOut": 0
+    }
+  ],
+  "inCycle": [],
+  "expected": {
+    "violationCount": 1,
+    "ruleIds": ["T-001"],
+    "severities": ["high"]
+  }
+}

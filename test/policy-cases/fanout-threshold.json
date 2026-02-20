@@ -1,0 +1,46 @@
+{
+  "name": "max fan-out violation",
+  "policy": {
+    "rules": [
+      {
+        "id": "T-002",
+        "type": "max_fan_out",
+        "threshold": 1,
+        "severity": "medium"
+      }
+    ]
+  },
+  "edges": [
+    {
+      "from": "src/api.js",
+      "to": "src/a.js"
+    },
+    {
+      "from": "src/api.js",
+      "to": "src/b.js"
+    }
+  ],
+  "moduleMetrics": [
+    {
+      "id": "src/api.js",
+      "fanIn": 0,
+      "fanOut": 2
+    },
+    {
+      "id": "src/a.js",
+      "fanIn": 1,
+      "fanOut": 0
+    },
+    {
+      "id": "src/b.js",
+      "fanIn": 1,
+      "fanOut": 0
+    }
+  ],
+  "inCycle": [],
+  "expected": {
+    "violationCount": 1,
+    "ruleIds": ["T-002"],
+    "severities": ["medium"]
+  }
+}
