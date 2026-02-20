@@ -53,6 +53,12 @@ while ($true) {
 }
 
 # Download artifact
+# Ensure target dir is clean to avoid archive extraction errors
+if (Test-Path 'tmp\coverage-artifact-fresh') {
+  Remove-Item -Recurse -Force 'tmp\coverage-artifact-fresh'
+}
+New-Item -ItemType Directory -Force -Path 'tmp\coverage-artifact-fresh' | Out-Null
+
 gh run download $runId --repo $Repo --name coverage-report --dir tmp\coverage-artifact-fresh
 if ($LASTEXITCODE -ne 0) { Write-Output 'DOWNLOAD_FAILED' }
 
