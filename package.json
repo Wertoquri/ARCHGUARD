@@ -15,7 +15,8 @@
     "prepare": "husky install",
     "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix",
     "test": "vitest run",
-    "coverage": "c8 --all --reporter=lcov --reporter=text node scripts/coverage_wrapper.js",
+    "coverage": "nyc --silent node scripts/coverage_wrapper.js",
+    "collect:browser-coverage": "node scripts/collect_browser_coverage.js",
     "demo": "node scripts/demo_run.js",
     "analyze": "node src/cli.js --policy examples/policy.yaml --out findings.json --fail-on high",
     "analyze:ai": "node src/cli.js --policy examples/policy.yaml --out findings.json --ai-summary ai_summary.txt",
@@ -48,6 +49,8 @@
   },
   "devDependencies": {
     "c8": "^10.1.3",
+    "nyc": "^15.1.0",
+    "puppeteer-to-istanbul": "^3.0.0",
     "eslint": "^8.45.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-import": "^2.27.5",

@@ -62,11 +62,45 @@ New-Item -ItemType Directory -Force -Path 'tmp\coverage-artifact-fresh' | Out-Nu
 gh run download $runId --repo $Repo --name coverage-report --dir tmp\coverage-artifact-fresh
 if ($LASTEXITCODE -ne 0) { Write-Output 'DOWNLOAD_FAILED' }
 
-if (Test-Path 'tmp\coverage-artifact-fresh\coverage\lcov.info') {
-  Write-Output 'LCOV_FOUND'
-  (Get-Item 'tmp\coverage-artifact-fresh\coverage\lcov.info').Length
-  Get-Content 'tmp\coverage-artifact-fresh\coverage\lcov.info' -TotalCount 200
+# Support lcov at either coverage/lcov.info or at the artifact root lcov.info
+$lcovCandidates = @(
+  'tmp\coverage-artifact-fresh\coverage\lcov.info',
+  'tmp\coverage-artifact-fresh\lcov.info'
+)
+$foundLcov = $null
+foreach ($p in $lcovCandid    ates) {
+  if (Test-Path $p) { $foundLcov = $p; break }
+}
+
+if ($foundLcov) {
+  Write-Output ("LCOV_FOUND: $foundLcov")
+  (Get-Item $foundLcov).Length
+  Get-Content $foundLcov -TotalCount 200
+  if (Test-Path 'tmp\coverage-artifact-fresh\coverage_summary.json') {
+    Write-Output 'COVERAGE_SUMMARY_JSON:'
+    Get-Content 'tmp\coverage-artifact-fresh\coverage_summary.json' -Raw
+  }
+  exit 0
 } else {
   Write-Output 'NO_LCOV'
   Get-ChildItem -Recurse tmp\coverage-artifact-fresh | Select-Object FullName, Length
+  # If there are any zip archives present, list their entries for debugging
+  $zips = Get-ChildItem -Path 'tmp\coverage-artifact-fresh' -Filter '*.zip' -Recurse -ErrorAction SilentlyContinue
+  if ($zips) {
+    foreach ($z in $zips) {
+      Write-Output "ZIP_ARCHIVE: $($z.FullName)"
+      try {
+        Add-Type -AssemblyName System.IO.Compression.FileSystem -ErrorAction SilentlyContinue
+        $zip = [System.IO.Compression.ZipFile]::OpenRead($z.FullName)
+        foreach ($entry in $zip.Entries) {
+          Write-Output ("  ENTRY: {0} ({1} bytes)" -f $entry.FullName, $entry.Length)
+        }
+        $zip.Dispose()
+      } catch {
+        Write-Output "  (failed to enumerate zip contents: $($_.Exception.Message))"
+      }
+    }
+  }
+  # Return non-zero so calling scripts can detect the missing lcov
+  exit 2
 }

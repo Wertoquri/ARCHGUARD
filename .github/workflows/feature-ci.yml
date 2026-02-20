@@ -39,8 +39,27 @@ jobs:
       - name: Run unit tests (fast)
         run: npm test --silent
 
+      - name: Build & serve FigmaUI and collect browser coverage
+        run: |
+          if [ -d FigmaUI ]; then
+            echo 'Building FigmaUI with sourcemaps (if configured)'
+            npm --prefix FigmaUI ci --silent || true
+            npm --prefix FigmaUI run build --silent || true
+            echo 'Starting FigmaUI preview in background'
+            npm --prefix FigmaUI run preview --silent & sleep 4 || true
+            echo 'Collecting browser coverage via Puppeteer'
+            node scripts/collect_browser_coverage.js || echo 'browser coverage collection failed'
+          else
+            echo 'No FigmaUI directory found — skipping browser coverage'
+          fi
+
       - name: Run coverage (optional)
         run: npm run coverage --silent || echo "No coverage generated"
+
+      - name: Merge browser + node coverage
+        run: |
+          echo 'Generating merged lcov from .nyc_output (if present)'
+          npx nyc report --reporter=lcov --report-dir=coverage || true
 
       - name: Debug show coverage lcov
         run: |
