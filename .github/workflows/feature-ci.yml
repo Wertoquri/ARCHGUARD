@@ -94,9 +94,22 @@ jobs:
           path: coverage/coverage_summary.json
 
       - name: Upload coverage artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: |
             coverage
             coverage/**
+      
+      - name: Debug workspace before upload
+        if: always()
+        run: |
+          echo '--- pwd ---'
+          pwd
+          echo '--- root listing (top 5) ---'
+          ls -la | head -n 50 || true
+          echo '--- find . (coverage related files) ---'
+          find . -maxdepth 5 -type f -name 'lcov.info' -o -name 'coverage_summary.json' -o -path './coverage/*' -print || true
+          echo '--- disk usage for coverage dir (if exists) ---'
+          du -sh coverage || true
