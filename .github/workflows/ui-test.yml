@@ -61,6 +61,22 @@ jobs:
           # run CommonJS helper to avoid shell quoting issues
           node scripts/generate_coverage_summary.cjs || true
 
+      - name: Dump .nyc_debug contents (for CI diagnostics)
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: |
+          echo "--- .nyc_debug listing ---"
+          if [ -d .nyc_debug ]; then
+            ls -la .nyc_debug || true
+            for f in .nyc_debug/*; do
+              echo "---- $f ----"
+              # limit cat size to first 20000 bytes to avoid huge logs
+              head -c 20000 "$f" || true
+              echo "\n"
+            done
+          else
+            echo ".nyc_debug not present"
+          fi
+
       - name: Upload coverage artifact
         if: steps.check_figma.outputs.figma_present == 'true'
         uses: actions/upload-artifact@v4
