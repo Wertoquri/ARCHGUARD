@@ -27,6 +27,12 @@ export default defineConfig({
     },
   },
 
+  // Ensure build emits sourcemaps so coverage tools can map compiled
+  // code back to original TSX/TS sources.
+  build: {
+    sourcemap: true,
+  },
+
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
 })
