@@ -43,6 +43,11 @@ async function run() {
               try {
                 parsedScriptEvents.push({ url: ev && ev.url ? ev.url : null, scriptId: ev && ev.scriptId ? ev.scriptId : null, timestamp: Date.now() });
               } catch (ee) {}
+              // immediate log so CI job logs show each parsed script as it arrives
+              try {
+                const id = ev && (ev.url || ev.scriptId) ? (ev.url || ev.scriptId) : '<unknown-script>';
+                console.log('SCRIPT_PARSED:', id);
+              } catch (ee) {}
           } catch (e) {}
         });
       } catch (e) {}
