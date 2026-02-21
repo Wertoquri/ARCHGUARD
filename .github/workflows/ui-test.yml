@@ -73,6 +73,7 @@ jobs:
             .nyc_output/**
             .nyc_debug
             .nyc_debug/**
+          include-hidden-files: true
 
       - name: Remove debug coverage artifacts
         if: steps.check_figma.outputs.figma_present == 'true'
