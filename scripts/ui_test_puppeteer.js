@@ -5,6 +5,7 @@ import path from 'path';
   const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
   const page = await browser.newPage();
   page.setDefaultTimeout(30000);
+  const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
   const base = 'http://localhost:5174/figma-ui/';
   try {
     await page.goto(base, { waitUntil: 'networkidle2' });
@@ -19,7 +20,7 @@ import path from 'path';
       return false;
     }, 'Policy Studio');
     if (!clickedPolicy) throw new Error('Policy Studio nav button not found');
-    await page.waitForTimeout(500);
+    await sleep(500);
 
     // Click 'New Policy' button (try english then fallback to any button containing 'New' or 'Нов')
     let newClicked = false;
@@ -33,7 +34,7 @@ import path from 'path';
       if (newClicked) break;
     }
     if (!newClicked) throw new Error('New Policy button not found');
-    await page.waitForTimeout(300);
+    await sleep(300);
 
     // Click 'Upload Policy Pack' in the new menu
     const clickedUploadMenu = await page.$$eval('button', (nodes, txt) => {
