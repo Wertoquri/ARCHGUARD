@@ -47,6 +47,14 @@ jobs:
         run: |
           npx nyc report --reporter=lcov --report-dir=coverage || true
 
+      - name: Collect browser coverage
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: |
+          echo "Collecting browser coverage from $FIGMA_UI_URL"
+          FIGMA_UI_URL='$FIGMA_UI_URL' node scripts/collect_browser_coverage.js || echo "collector failed"
+        env:
+          FIGMA_UI_URL: 'http://localhost:5174/figma-ui/'
+
       - name: Generate coverage summary JSON
         if: steps.check_figma.outputs.figma_present == 'true'
         run: |
