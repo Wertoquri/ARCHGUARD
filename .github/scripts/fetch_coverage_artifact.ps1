@@ -12,8 +12,9 @@ $prev = $prev -replace "\r?\n",""
 Write-Output "PrevRun:$prev"
 
 git add .github/workflows/feature-ci.yml .github/workflows/ci.yml
-# commit only if there are staged changes
-if (-not (git diff --cached --quiet)) {
+# commit only if there are staged changes: run the quiet diff and inspect the exit code
+git diff --cached --quiet
+if ($LASTEXITCODE -ne 0) {
   git commit -m "ci: expand pre-upload coverage debug to include c8/node versions and non-zero DA counts" | Write-Output
 } else {
   Write-Output 'No staged changes to commit'
@@ -67,8 +68,8 @@ $lcovCandidates = @(
   'tmp\coverage-artifact-fresh\coverage\lcov.info',
   'tmp\coverage-artifact-fresh\lcov.info'
 )
-$foundLcov = $null
-foreach ($p in $lcovCandid    ates) {
+$foundLcov = ""
+foreach ($p in $lcovCandidates) {
   if (Test-Path $p) { $foundLcov = $p; break }
 }
 

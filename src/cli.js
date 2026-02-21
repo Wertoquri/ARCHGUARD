@@ -12,9 +12,11 @@ const program = new Command();
 program
   .name('archguard')
   .description('ARCHGUARD - Architectural Policy & Risk Engine')
+  .version('0.1.0')
   .option('-p, --project <path>', 'Project root directory', '.')
   .option('-r, --policy <file>', 'Policy YAML file')
   .option('-o, --out <file>', 'Output findings.json path', 'findings.json')
+  .option('--output-dir <dir>', 'Output directory for findings.json, metrics.json, summary.json')
   .option('--ai-summary <file>', 'Write AI summary to a text file')
   .option('--fail-on <severity>', 'Fail on severity (low|medium|high|critical)', 'high')
   .option('--dry-run', 'Generate migration bundle from docs/pr_diffs (no changes)')
@@ -178,6 +180,7 @@ try {
     projectRoot: options.project,
     policyPath: options.policy,
     outputPath: options.out,
+    outputDir: options.outputDir,
     failOn,
     aiSummaryPath: options.aiSummary,
   });
