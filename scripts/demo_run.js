@@ -33,7 +33,7 @@ main().catch((e) => {
   console.error(e && e.stack ? e.stack : e);
   process.exit(1);
 });
-#!/usr/bin/env node
+
 /* Demo runner: seed DB, start server, run example workflow, capture logs, shut down. */
 import { spawn } from 'child_process';
 import fs from 'fs';
