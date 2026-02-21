@@ -41,18 +41,18 @@ npm run figma-ui:build
 ### 3) Start UI server
 
 ```bash
+# start the policy UI/API server (default port 5175)
 node scripts/serve_policy_ui.js
 ```
 
-Default URL:
-
+Default URL: http://localhost:5175
 
 ### 4) Smoke check
 
 ```bash
 # from a second terminal
-curl http://localhost:5174/api/ui/capabilities
-curl http://localhost:5174/api/ui/bootstrap
+curl http://localhost:5175/api/ui/capabilities
+curl http://localhost:5175/api/ui/bootstrap
 ```
 
 Expected: JSON with `ok: true`.

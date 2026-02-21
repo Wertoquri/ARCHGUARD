@@ -1,4 +1,39 @@
 #!/usr/bin/env node
+import { spawnSync, spawn } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+
+async function buildFigmaUI() {
+  const figmaDir = path.resolve('FigmaUI');
+  if (!fs.existsSync(figmaDir)) return false;
+  console.log('Found FigmaUI — installing and building (may take a minute)...');
+  spawnSync('npm', ['--prefix', 'FigmaUI', 'ci'], { stdio: 'inherit' });
+  spawnSync('npm', ['--prefix', 'FigmaUI', 'run', 'build'], { stdio: 'inherit' });
+  return true;
+}
+
+async function startServer() {
+  console.log('Starting policy UI server (scripts/serve_policy_ui.js)...');
+  const ps = spawn(process.execPath, ['scripts/serve_policy_ui.js'], { stdio: 'inherit' });
+  ps.on('exit', (code) => process.exit(code));
+}
+
+async function main() {
+  try {
+    await buildFigmaUI();
+  } catch (e) {
+    console.warn('FigmaUI build failed (continuing):', e && e.message ? e.message : e);
+  }
+  console.log('\nDemo server will be available at http://localhost:5175');
+  console.log('Press Ctrl+C to stop.');
+  await startServer();
+}
+
+main().catch((e) => {
+  console.error(e && e.stack ? e.stack : e);
+  process.exit(1);
+});
+#!/usr/bin/env node
 /* Demo runner: seed DB, start server, run example workflow, capture logs, shut down. */
 import { spawn } from 'child_process';
 import fs from 'fs';
