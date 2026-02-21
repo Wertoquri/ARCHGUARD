@@ -207,23 +207,144 @@ async function run() {
     }
 
     const istanbulCoverage = {};
+    const sourcesDir = path.resolve('.nyc_output', 'sources');
+    if (!fs.existsSync(sourcesDir)) fs.mkdirSync(sourcesDir, { recursive: true });
+
     for (const entry of v8Coverage) {
       const scriptUrl = entry.url || entry.scriptId || '';
       if (!scriptUrl || scriptUrl === '') continue;
-      const localFile = findLocalBuildFile(scriptUrl);
+
+      // try local mapping first
+      let localFile = findLocalBuildFile(scriptUrl);
+
+      // helper to write fetched remote script to .nyc_output/sources
+      async function fetchAndSave(urlStr) {
+        try {
+          const u = new URL(urlStr);
+          const safeName = encodeURIComponent(u.pathname.replace(/\//g, '_')) + (u.search ? '_' + encodeURIComponent(u.search) : '');
+          const outPath = path.join(sourcesDir, `${safeName}.js`);
+          if (fs.existsSync(outPath)) return outPath;
+          // use global fetch (Node 18+) or fallback to require('node-fetch') if needed
+          const res = await fetch(u.toString());
+          if (!res.ok) return null;
+          const text = await res.text();
+          fs.writeFileSync(outPath, text, 'utf8');
+
+          // try to find sourceMappingURL and fetch the map next to the file
+          const m = /sourceMappingURL=([^\n\r]+)/.exec(text);
+          if (m && m[1]) {
+            try {
+              let mapUrl = m[1].trim();
+              // strip possible inline comment markers
+              mapUrl = mapUrl.replace(/[*\\/]+$/, '').trim();
+              const resolved = new URL(mapUrl, u).toString();
+              const mapRes = await fetch(resolved);
+              if (mapRes.ok) {
+                const mapText = await mapRes.text();
+                const mapOut = outPath + '.map';
+                fs.writeFileSync(mapOut, mapText, 'utf8');
+              }
+            } catch (e) {
+              // ignore map fetch errors
+            }
+          }
+          return outPath;
+        } catch (e) {
+          return null;
+        }
+      }
+
       if (!localFile) {
-        console.warn('Could not map served URL to local file:', scriptUrl);
+        // handle puppeteer-evaluate inline script urls like 'pptr:evaluate;run (file:///...)'
+        try {
+          if (scriptUrl.startsWith('pptr:') && scriptUrl.includes('file://')) {
+            const m = /file:\/\/[^")]+/.exec(scriptUrl);
+            if (m) {
+              const f = decodeURIComponent(m[0].replace(/^file:\/\//, ''));
+              if (fs.existsSync(f)) localFile = f;
+            }
+          }
+        } catch (e) {}
+      }
+
+      if (!localFile) {
+        // try fetching the served URL and saving it for conversion
+        try {
+          if (scriptUrl.startsWith('http:') || scriptUrl.startsWith('https:')) {
+            // eslint-disable-next-line no-await-in-loop
+            const fetched = await fetchAndSave(scriptUrl);
+            if (fetched) localFile = fetched;
+          }
+        } catch (e) {}
+      }
+
+      if (!localFile) {
+        console.warn('Could not map served URL to local file and fetch failed:', scriptUrl);
         continue;
       }
 
       try {
         const converter = v8ToIstanbulModule(localFile, 0, {});
-        // load file and source maps
-        // converter.load() returns a promise
-        // apply coverage and get istanbul format
         // eslint-disable-next-line no-await-in-loop
         await converter.load();
-        converter.applyCoverage(entry);
+
+        // Normalize CDP PreciseCoverage entry shape to what v8-to-istanbul expects
+        const normalizeEntry = (ent) => {
+          const copy = Object.assign({}, ent);
+          if (Array.isArray(copy.functions)) {
+            copy.functions = copy.functions.map((fn) => {
+              const fcopy = Object.assign({}, fn);
+              // some CDP variants name ranges differently; ensure 'ranges' and 'blocks' exist as arrays
+              const ranges = fn.ranges || fn.blocks || [];
+              const rangesArr = Array.isArray(ranges) ? ranges : Array.from(ranges || []);
+              // convert ranges to plain objects array
+              const plainRanges = rangesArr.map(r => ({ startOffset: r.startOffset, endOffset: r.endOffset, count: r.count }));
+              // some converters expect blocks as array-of-arrays [start,end,count]
+              const blocksArr = plainRanges.map(r => [r.startOffset, r.endOffset, r.count]);
+              fcopy.ranges = plainRanges;
+              fcopy.blocks = blocksArr;
+              return fcopy;
+            });
+          }
+          return copy;
+        };
+
+        const tryApply = async (covEntry) => {
+          try {
+            converter.applyCoverage(covEntry);
+            return true;
+          } catch (err) {
+            // try wrapping in { result: [entry] }
+            try {
+              converter.applyCoverage({ result: [covEntry] });
+              return true;
+            } catch (err2) {
+              console.error('applyCoverage stack:', err2 && err2.stack ? err2.stack : err2);
+              throw err2;
+            }
+          }
+        };
+
+        const normalized = normalizeEntry(entry);
+        const blocksToApply = (normalized.functions || []).map((f) => ({ functionName: f.functionName || '(anonymous)', ranges: f.ranges || [], isBlockCoverage: !!f.isBlockCoverage }));
+        console.log('Converting', localFile, 'functions=', Array.isArray(normalized.functions) ? normalized.functions.length : 0, 'firstRangesIsArray=', Array.isArray(normalized.functions && normalized.functions[0] && normalized.functions[0].ranges));
+        // eslint-disable-next-line no-await-in-loop
+        await tryApply(blocksToApply).catch((err) => {
+          console.warn('applyCoverage failed for', localFile, 'error:', err && err.message ? err.message : err);
+          if (normalized && normalized.functions && normalized.functions.length) {
+            try {
+              const sample = normalized.functions.slice(0,3).map(f => ({ functionName: f.functionName, rangesType: typeof f.ranges, rangesLen: Array.isArray(f.ranges) ? f.ranges.length : 0 }));
+              console.warn('Sample functions:', JSON.stringify(sample));
+            } catch (e) {}
+              try {
+                const debugPath = path.join(sourcesDir, 'debug-' + path.basename(localFile) + '-' + Date.now() + '.json');
+                fs.writeFileSync(debugPath, JSON.stringify(normalized, null, 2), 'utf8');
+                console.warn('Wrote debug normalized entry to', debugPath);
+              } catch (e) {}
+          }
+          throw err;
+        });
+
         const fileCov = converter.toIstanbul();
         Object.assign(istanbulCoverage, fileCov);
       } catch (e) {

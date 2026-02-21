@@ -36,10 +36,28 @@ jobs:
         run: npm run ci:ui-test
         env:
           CI: true
+          FIGMA_UI_URL: 'http://localhost:5174/figma-ui/'
 
       - name: Run coverage (optional)
         if: steps.check_figma.outputs.figma_present == 'true'
         run: npm run coverage --silent || echo "No coverage generated"
+
+      - name: Generate nyc reports
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: |
+          npx nyc report --reporter=lcov --report-dir=coverage || true
+
+      - name: Generate coverage summary JSON
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: |
+          # run CommonJS helper to avoid shell quoting issues
+          node scripts/generate_coverage_summary.cjs || true
+
+      - name: Remove debug coverage artifacts
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: |
+          rm -rf .nyc_output/debug-*.json || true
+          rm -rf .nyc_output/sources || true
 
       - name: Upload coverage artifact
         if: steps.check_figma.outputs.figma_present == 'true'

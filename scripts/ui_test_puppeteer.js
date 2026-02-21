@@ -84,8 +84,8 @@ import path from 'path';
     try { uploadJson = await uploadResp.json(); } catch (e) { uploadJson = await uploadResp.text().catch(() => null); }
     console.log('Upload response:', uploadJson);
 
-    // Wait for changelog modal to appear (look for 'Changelog' title)
-    await page.waitForXPath("//*[contains(., 'Changelog') or contains(., 'Журнал змін')]", { timeout: 10000 });
+    // Wait for changelog modal to appear (look for 'Changelog' title) — portable XPath helper
+    await page.waitForFunction((xp) => !!document.evaluate(xp, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue, { timeout: 10000 }, "//*[contains(., 'Changelog') or contains(., 'Журнал змін')]");
     console.log('SUCCESS: Changelog modal detected');
   } catch (e) {
     console.error('FAIL:', e.message);
