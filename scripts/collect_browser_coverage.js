@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-import { writeCoverage } from 'puppeteer-to-istanbul';
+import fs from 'node:fs';
 
 async function run() {
   const url = process.env.FIGMA_UI_URL || 'http://127.0.0.1:5173/';
@@ -98,9 +98,15 @@ async function run() {
   const v8Coverage = await page.coverage.stopJSCoverage();
   await browser.close();
 
-  // write coverage into .nyc_output (puppeteer-to-istanbul default)
-  writeCoverage(v8Coverage);
-  console.log('Browser coverage written to .nyc_output/ (puppeteer-to-istanbul)');
+  // write raw V8 coverage into .nyc_output so CI can inspect it.
+  try {
+    fs.mkdirSync('.nyc_output', { recursive: true });
+    const outPath = `.nyc_output/v8-coverage-${Date.now()}.json`;
+    fs.writeFileSync(outPath, JSON.stringify(v8Coverage), 'utf8');
+    console.log(`Browser V8 coverage written to ${outPath}`);
+  } catch (e) {
+    console.error('Failed to write coverage:', e && e.message ? e.message : e);
+  }
 }
 
 run().catch((e) => {
