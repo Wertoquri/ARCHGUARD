@@ -9,6 +9,9 @@ async function run() {
   const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
   const page = await browser.newPage();
 
+  // small helper instead of `page.waitForTimeout` which may not exist in some Puppeteer builds
+  const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+
   // start PreciseCoverage via CDP (more reliable across Puppeteer versions)
   // Create CDP sessions for all current and future page targets so we capture coverage
   const sessions = new Map();
@@ -63,7 +66,7 @@ async function run() {
     try {
       const dest = new URL(r, url).toString();
       await page.goto(dest, { waitUntil: 'networkidle2' });
-      await page.waitForTimeout(800).catch(() => {});
+      await sleep(800);
     } catch (e) {
       // ignore navigation failures
     }
@@ -81,7 +84,7 @@ async function run() {
       // try a few nav labels commonly used
       clickByText('a,button,[role="button"]', 'Findings') || clickByText('a,button,[role="button"]', 'Findings');
     });
-    await page.waitForTimeout(800).catch(() => {});
+    await sleep(800);
 
     // try to open first finding card by looking for common class or text
     const opened = await page.evaluate(() => {
@@ -92,7 +95,7 @@ async function run() {
       if (rows && rows[0]) { rows[0].click(); return true; }
       return false;
     });
-    if (opened) await page.waitForTimeout(700);
+    if (opened) await sleep(700);
 
     // try to open Rule Editor / Open Policy buttons
     await page.evaluate(() => {
@@ -104,7 +107,7 @@ async function run() {
       clickText('Rule Editor');
       clickText('Open Policy');
     });
-    await page.waitForTimeout(700).catch(() => {});
+    await sleep(700);
 
     // try filling a remediation form: look for inputs labelled assignee/due/status
     try {
@@ -118,7 +121,7 @@ async function run() {
         const btn = Array.from(document.querySelectorAll('button')).find(b => /save|create|submit|create jira|create issue/i.test(b.innerText));
         if (btn) btn.click();
       });
-      await page.waitForTimeout(700).catch(() => {});
+      await sleep(700);
     } catch (e) {
       // ignore form fill errors
     }
@@ -130,7 +133,7 @@ async function run() {
       try {
         const el = clickables[i];
         const box = await el.boundingBox();
-        if (box) { await el.click({ delay: 40 }); await page.waitForTimeout(250); }
+        if (box) { await el.click({ delay: 40 }); await sleep(250); }
       } catch (e) {}
     }
   } catch (e) {
