@@ -160,6 +160,9 @@ async function run() {
 
   // collect precise coverage from CDP
   // gather coverage from all sessions
+  // add a short extra wait to give the page time to register scripts in CI
+  await sleep(2000);
+  console.log('Waiting before coverage collection to let scripts settle (2000ms)');
   const allResults = [];
   // if Puppeteer JS coverage was enabled, stop it and merge
   if (jsCoverageEnabled) {
@@ -181,13 +184,22 @@ async function run() {
   }
   for (const [t, s] of sessions) {
     try {
+      // take coverage twice with a short gap to increase chance of capturing dynamic scripts
       // eslint-disable-next-line no-await-in-loop
-      const take = await s.send('Profiler.takePreciseCoverage');
+      const take1 = await s.send('Profiler.takePreciseCoverage');
+      // small pause between samples
+      // eslint-disable-next-line no-await-in-loop
+      await sleep(300);
+      // eslint-disable-next-line no-await-in-loop
+      const take2 = await s.send('Profiler.takePreciseCoverage');
+      // stop the profiler once we've sampled
       // eslint-disable-next-line no-await-in-loop
       await s.send('Profiler.stopPreciseCoverage');
       // eslint-disable-next-line no-await-in-loop
       await s.send('Profiler.disable');
-      if (take && take.result) allResults.push(...take.result);
+      if (take1 && take1.result) allResults.push(...take1.result);
+      if (take2 && take2.result) allResults.push(...take2.result);
+      try { console.log('Session coverage samples:', (take1 && take1.result ? take1.result.length : 0), (take2 && take2.result ? take2.result.length : 0)); } catch (e) {}
     } catch (e) {}
   }
   const v8Coverage = allResults;
