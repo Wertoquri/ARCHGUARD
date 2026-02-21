@@ -218,20 +218,30 @@ async function run() {
         const candidate = path.resolve(process.cwd(), 'FigmaUI', 'dist', pathname);
         if (fs.existsSync(candidate)) return candidate;
 
-        // fallback: search by basename inside FigmaUI/dist
-        const basename = path.basename(pathname);
+        // fallback: search by basename inside FigmaUI/dist using heuristics
+        const basename = path.basename(pathname).split('?')[0];
+        const token = basename.replace(/\.[^.]+$/, '');
+        const tokenPrefix = (token.split(/[-_.]/)[0] || token);
         const distDir = path.resolve(process.cwd(), 'FigmaUI', 'dist');
         const stack = [distDir];
+        const includesMatches = [];
+        const startsWithMatches = [];
         while (stack.length) {
           const cur = stack.pop();
           try {
             for (const ent of fs.readdirSync(cur, { withFileTypes: true })) {
               const p = path.join(cur, ent.name);
-              if (ent.isDirectory()) stack.push(p);
-              else if (ent.isFile() && ent.name === basename) return p;
+              if (ent.isDirectory()) { stack.push(p); continue; }
+              if (!ent.isFile()) continue;
+              const name = ent.name;
+              if (name === basename) return p; // exact match
+              if (name.startsWith(tokenPrefix)) startsWithMatches.push(p);
+              else if (name.includes(token)) includesMatches.push(p);
             }
           } catch (e) {}
         }
+        if (startsWithMatches.length) return startsWithMatches[0];
+        if (includesMatches.length) return includesMatches[0];
       } catch (e) {}
       return null;
     }
@@ -318,6 +328,14 @@ async function run() {
       }
 
       if (!localFile) {
+        try {
+          const debugMap = { scriptUrl, attemptedAt: new Date().toISOString() };
+          try {
+            const dbgPath = path.join(sourcesDir, 'mapping-fail-' + encodeURIComponent(scriptUrl).slice(0,80) + '-' + Date.now() + '.json');
+            fs.writeFileSync(dbgPath, JSON.stringify(debugMap, null, 2), 'utf8');
+            console.warn('Wrote mapping debug file to', dbgPath);
+          } catch (e) {}
+        } catch (e) {}
         console.warn('Could not map served URL to local file and fetch failed:', scriptUrl);
         continue;
       }
