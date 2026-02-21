@@ -187,6 +187,15 @@ async function run() {
   const v8Coverage = allResults;
   await browser.close();
 
+  // emit compact debug info to job logs so CI shows whether any coverage was captured
+  try {
+    console.log('COLLECTED_COVERAGE_COUNT:', Array.isArray(v8Coverage) ? v8Coverage.length : 0);
+    try {
+      const sample = (Array.isArray(v8Coverage) ? v8Coverage.slice(0, 20).map(e => (e && (e.url || e.scriptId)) || null) : []);
+      console.log('COLLECTED_COVERAGE_URLS_SAMPLE:', JSON.stringify(sample));
+    } catch (e) {}
+  } catch (e) {}
+
   // write raw V8 coverage into .nyc_output so CI can inspect it.
   try {
     // save raw V8 coverage for debugging outside of .nyc_output so nyc doesn't attempt to parse it
