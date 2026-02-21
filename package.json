@@ -2,6 +2,7 @@
   "name": "archguard",
   "version": "0.1.0",
   "description": "Architectural policy and risk engine for TypeScript and JavaScript codebases.",
+  "license": "MIT",
   "type": "module",
   "bin": {
     "archguard": "src/cli.js"
