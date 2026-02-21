@@ -11,7 +11,7 @@
 import fs from 'node:fs';
 
 export function generateAiSummary(report) {
-  const { summary, findings = [], metrics = {} } = report;
+  const { summary, findings = [] } = report;
   const globalMetrics = summary || report.globalMetrics || {};
   const riskSummary = globalMetrics.riskDistribution || report.riskSummary || {};
   const violations = findings.length ? findings : report.violations || [];

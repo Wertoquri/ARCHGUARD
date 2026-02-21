@@ -71,7 +71,7 @@ function reverseReachCount(reverseAdj, startNode) {
  * @param {Set<string>} params.inCycle
  * @returns {{ architectureScore, riskLevel, criticalNodes, blastRadii }}
  */
-export function computeRisk({ graph, moduleMetrics, globalMetrics, findings, inCycle }) {
+export function computeRisk({ graph, moduleMetrics, globalMetrics, findings, inCycle: _inCycle }) {
   const adjacency = graph.getAdjacency();
 
   // --- Build reverse adjacency for blast-radius computation ---

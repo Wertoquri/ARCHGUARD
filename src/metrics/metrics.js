@@ -37,7 +37,6 @@ export function calculateMetrics(graph, inCycle, centrality = new Map(), thresho
   const nodes = graph.getNodes();
 
   const maxFanIn = Math.max(0, ...Array.from(fanMetrics.values()).map((m) => m.fanIn));
-  const maxLoc = Math.max(0, ...nodes.map((n) => n.loc));
   const maxCentrality = Math.max(0, ...Array.from(centrality.values()));
 
   const modules = nodes.map((node) => {
