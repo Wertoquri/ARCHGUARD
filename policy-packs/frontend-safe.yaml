@@ -1,0 +1,17 @@
+# Sample policy pack: frontend-safe
+policies:
+  - id: avoid-inline-scripts
+    title: Avoid inline scripts
+    description: Prevent use of inline scripts to reduce XSS risk
+    severity: medium
+    rule: |
+      when: true
+      then: deny
+
+  - id: secure-cookies
+    title: Secure cookies
+    description: Cookies must have Secure and HttpOnly flags
+    severity: low
+    rule: |
+      when: true
+      then: warn

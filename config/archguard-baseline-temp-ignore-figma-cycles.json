@@ -1,0 +1,58 @@
+{
+  "ignoredViolations": [
+    {
+      "ruleId": "R-003",
+      "type": "no_cycles",
+      "moduleId": "FigmaUI/src/app/App.tsx",
+      "severity": "high",
+      "reason": "Temporarily ignore cycles in FigmaUI while refactoring",
+      "owner": "team-frontend",
+      "expiresAt": "2026-03-18T00:00:00.000Z"
+    },
+    {
+      "ruleId": "R-003",
+      "type": "no_cycles",
+      "moduleId": "FigmaUI/src/app/components/Dashboard.tsx",
+      "severity": "high",
+      "reason": "Temporarily ignore cycles in FigmaUI while refactoring",
+      "owner": "team-frontend",
+      "expiresAt": "2026-03-18T00:00:00.000Z"
+    },
+    {
+      "ruleId": "R-003",
+      "type": "no_cycles",
+      "moduleId": "FigmaUI/src/app/components/DependencyDetail.tsx",
+      "severity": "high",
+      "reason": "Temporarily ignore cycles in FigmaUI while refactoring",
+      "owner": "team-frontend",
+      "expiresAt": "2026-03-18T00:00:00.000Z"
+    },
+    {
+      "ruleId": "R-003",
+      "type": "no_cycles",
+      "moduleId": "FigmaUI/src/app/components/Findings.tsx",
+      "severity": "high",
+      "reason": "Temporarily ignore cycles in FigmaUI while refactoring",
+      "owner": "team-frontend",
+      "expiresAt": "2026-03-18T00:00:00.000Z"
+    },
+    {
+      "ruleId": "R-003",
+      "type": "no_cycles",
+      "moduleId": "FigmaUI/src/app/components/PolicyStudio.tsx",
+      "severity": "high",
+      "reason": "Temporarily ignore cycles in FigmaUI while refactoring",
+      "owner": "team-frontend",
+      "expiresAt": "2026-03-18T00:00:00.000Z"
+    },
+    {
+      "ruleId": "R-003",
+      "type": "no_cycles",
+      "moduleId": "FigmaUI/src/app/components/PRReview.tsx",
+      "severity": "high",
+      "reason": "Temporarily ignore cycles in FigmaUI while refactoring",
+      "owner": "team-frontend",
+      "expiresAt": "2026-03-18T00:00:00.000Z"
+    }
+  ]
+}

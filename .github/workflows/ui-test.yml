@@ -1,10 +1,10 @@
 name: UI Integration Tests
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
+    # run on PRs targeting main (adjust as needed)
     branches: [ main ]
+  workflow_dispatch: {}
 
 jobs:
   ui-test:
@@ -17,9 +17,86 @@ jobs:
           node-version: '24'
       - name: Install repo dependencies
         run: npm ci
+
+      - name: Check for FigmaUI directory
+        id: check_figma
+        run: |
+          if [ -d "FigmaUI" ]; then
+            echo "figma_present=true" >> $GITHUB_OUTPUT
+          else
+            echo "figma_present=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Install Figma UI deps
+        if: steps.check_figma.outputs.figma_present == 'true'
         run: npm --prefix FigmaUI ci
+
       - name: Run UI integration test
+        if: steps.check_figma.outputs.figma_present == 'true'
         run: npm run ci:ui-test
         env:
           CI: true
+          FIGMA_UI_URL: 'http://localhost:5174/figma-ui/'
+
+      - name: Run coverage (optional)
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: npm run coverage --silent || echo "No coverage generated"
+
+      - name: Collect browser coverage
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: |
+          echo "Collecting browser coverage from $FIGMA_UI_URL"
+          node scripts/collect_browser_coverage.js || echo "collector failed"
+        env:
+          FIGMA_UI_URL: 'http://localhost:5174/figma-ui/'
+
+      - name: Generate nyc reports
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: |
+          npx nyc report --reporter=lcov --report-dir=coverage || true
+
+      - name: Generate coverage summary JSON
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: |
+          # run CommonJS helper to avoid shell quoting issues
+          node scripts/generate_coverage_summary.cjs || true
+
+      - name: Dump .nyc_debug contents (for CI diagnostics)
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: |
+          echo "--- .nyc_debug listing ---"
+          if [ -d .nyc_debug ]; then
+            ls -la .nyc_debug || true
+            for f in .nyc_debug/*; do
+              echo "---- $f ----"
+              # limit cat size to first 20000 bytes to avoid huge logs
+              head -c 20000 "$f" || true
+              echo "\n"
+            done
+          else
+            echo ".nyc_debug not present"
+          fi
+
+      - name: Upload coverage artifact
+        if: steps.check_figma.outputs.figma_present == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage
+            coverage/**
+            .nyc_output
+            .nyc_output/**
+            .nyc_debug
+            .nyc_debug/**
+          include-hidden-files: true
+
+      - name: Remove debug coverage artifacts
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: |
+          rm -rf .nyc_output/debug-*.json || true
+          rm -rf .nyc_output/sources || true
+
+      - name: Skip UI tests message
+        if: steps.check_figma.outputs.figma_present == 'false'
+        run: echo "FigmaUI folder not present — skipping UI integration tests."

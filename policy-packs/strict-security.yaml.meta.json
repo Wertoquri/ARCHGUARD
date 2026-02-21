@@ -1,0 +1,23 @@
+{
+  "name": "strict-security",
+  "description": "",
+  "version": "0.0.3",
+  "uploadedAt": 1771097037756,
+  "changelog": [
+    {
+      "version": "0.0.3",
+      "note": "auto bump patch on upload",
+      "at": 1771097037756
+    },
+    {
+      "version": "0.0.2",
+      "note": "auto bump patch on upload",
+      "at": 1771096374531
+    },
+    {
+      "version": "0.0.1",
+      "note": "initial upload",
+      "at": 1771095675837
+    }
+  ]
+}

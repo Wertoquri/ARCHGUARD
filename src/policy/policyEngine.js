@@ -1,4 +1,18 @@
+/**
+ * ARCHGUARD — Policy Engine
+ *
+ * Responsibilities:
+ *   - Load and validate YAML policy files against JSON Schema (via ajv)
+ *   - Evaluate 5 rule types: forbidden_dependency, max_fan_in, max_fan_out,
+ *     no_cycles, layer_matrix
+ *   - Support global and per-rule exemptions
+ *   - Produce structured violations with deterministic severity
+ *
+ * Unknown rule types are rejected during schema validation.
+ */
+
 import fs from 'node:fs';
+import Ajv from 'ajv';
 import * as minimatchPkg from 'minimatch';
 const minimatch = minimatchPkg?.default ?? minimatchPkg?.minimatch ?? minimatchPkg;
 import YAML from 'yaml';
@@ -11,12 +25,62 @@ const DEFAULT_SEVERITY = {
   layer_matrix: 'high',
 };
 
+// ---------- JSON Schema for policy YAML ----------
+const RULE_TYPES = [
+  'forbidden_dependency',
+  'max_fan_in',
+  'max_fan_out',
+  'no_cycles',
+  'layer_matrix',
+];
+
+const policySchema = {
+  type: 'object',
+  required: ['rules'],
+  properties: {
+    rules: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['id', 'type'],
+        properties: {
+          id: { type: 'string' },
+          type: { type: 'string', enum: RULE_TYPES },
+          severity: { type: 'string', enum: ['low', 'medium', 'high', 'critical'] },
+          from: { type: 'string' },
+          to: { type: 'string' },
+          threshold: { type: 'number', minimum: 0 },
+          message: { type: 'string' },
+          exempt: { type: 'array', items: { type: 'string' } },
+          layers: { type: 'object' },
+          allow: { type: 'array' },
+          allowSameLayer: { type: 'boolean' },
+        },
+        additionalProperties: true,
+      },
+    },
+    exemptions: { type: 'array' },
+  },
+  additionalProperties: true,
+};
+
+const ajv = new Ajv({ allErrors: true });
+const validateSchema = ajv.compile(policySchema);
+
 export function loadPolicy(policyPath) {
   const content = fs.readFileSync(policyPath, 'utf8');
   const parsed = YAML.parse(content);
   if (!parsed || !Array.isArray(parsed.rules)) {
     throw new Error('Invalid policy file: rules not found');
   }
+
+  // Validate against schema
+  const valid = validateSchema(parsed);
+  if (!valid) {
+    const msgs = (validateSchema.errors || []).map((e) => `${e.instancePath} ${e.message}`);
+    throw new Error(`Policy schema validation failed:\n  ${msgs.join('\n  ')}`);
+  }
+
   return parsed;
 }
 

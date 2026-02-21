@@ -1,0 +1,56 @@
+[
+  {
+    "capturedAt": "2026-02-14T12:20:59.550Z",
+    "findingsGeneratedAt": "2026-02-11T19:47:16.429Z",
+    "branch": null,
+    "commit": null,
+    "runId": null,
+    "globalMetrics": {
+      "totalModules": 57,
+      "totalEdges": 86,
+      "avgInstability": 0.3481,
+      "cycleCount": 0,
+      "coreModules": 3
+    },
+    "riskSummary": {
+      "highRiskModules": 1,
+      "mediumRiskModules": 1,
+      "lowRiskModules": 55
+    },
+    "violationCount": 0,
+    "bySeverity": {
+      "low": 0,
+      "medium": 0,
+      "high": 0,
+      "critical": 0
+    },
+    "ownershipSummary": [],
+    "topRiskModules": [
+      {
+        "id": "src/context/I18nContext.jsx",
+        "changeRiskScore": 76,
+        "owner": "unowned"
+      },
+      {
+        "id": "src/api.js",
+        "changeRiskScore": 47,
+        "owner": "unowned"
+      },
+      {
+        "id": "src/components/TasksModal.jsx",
+        "changeRiskScore": 32,
+        "owner": "unowned"
+      },
+      {
+        "id": "src/components/Kanban.jsx",
+        "changeRiskScore": 25,
+        "owner": "unowned"
+      },
+      {
+        "id": "src/components/ProjectPage.jsx",
+        "changeRiskScore": 24,
+        "owner": "unowned"
+      }
+    ]
+  }
+]

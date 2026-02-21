@@ -28,7 +28,7 @@ const server = app.listen(port, async () => {
     await page.setViewport({ width: 1400, height: 900, deviceScaleFactor: 2 });
     await page.goto(url, { waitUntil: 'networkidle2' });
     // wait short time for network rendering
-    await page.waitForTimeout(800);
+    await new Promise(res => setTimeout(res, 800));
     await page.screenshot({ path: outPng, fullPage: true });
     console.log('Wrote', outPng);
     await browser.close();

@@ -1,0 +1,135 @@
+name: Feature Branch CI
+
+on:
+  push:
+    branches: [ 'feature/**' ]
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+  workflow_dispatch: {}
+
+jobs:
+  quick-check:
+    name: Quick lint & tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci || npm install --no-audit --no-fund
+
+      - name: Run ESLint (fast)
+        run: npm run lint --silent
+
+      - name: Run unit tests (fast)
+        run: npm test --silent
+
+      - name: Build & serve FigmaUI and collect browser coverage
+        run: |
+          if [ -d FigmaUI ]; then
+            echo 'Building FigmaUI with sourcemaps (if configured)'
+            npm --prefix FigmaUI ci --silent || true
+            npm --prefix FigmaUI run build --silent || true
+            echo 'Starting FigmaUI preview in background'
+            npm --prefix FigmaUI run preview --silent & sleep 4 || true
+            echo 'Collecting browser coverage via Puppeteer'
+            node scripts/collect_browser_coverage.js || echo 'browser coverage collection failed'
+          else
+            echo 'No FigmaUI directory found — skipping browser coverage'
+          fi
+
+      - name: Run coverage (optional)
+        run: npm run coverage --silent || echo "No coverage generated"
+
+      - name: Merge browser + node coverage
+        run: |
+          echo 'Generating merged lcov from .nyc_output (if present)'
+          npx nyc report --reporter=lcov --report-dir=coverage || true
+
+      - name: Debug show coverage lcov
+        run: |
+          echo "Node:", $(node -v) || true
+          echo "NPM:", $(npm -v) || true
+          echo "c8 version:"; npx c8 --version || true
+          echo "Coverage lcov path: coverage/lcov.info"
+          if [ -f coverage/lcov.info ]; then
+            echo '--- size (bytes) ---'
+            wc -c coverage/lcov.info || true
+            echo '--- head (first 200 lines) ---'
+            head -n 200 coverage/lcov.info || true
+            echo '--- tail (last 50 lines) ---'
+            tail -n 50 coverage/lcov.info || true
+            echo '--- non-zero DA entries (sample 20) ---'
+            grep -E 'DA:[0-9]+,[1-9]' coverage/lcov.info | head -n 20 || true
+            echo '--- non-zero DA count ---'
+            grep -E 'DA:[0-9]+,[1-9]' coverage/lcov.info | wc -l || true
+          else
+            echo 'coverage/lcov.info not found'
+          fi
+          echo '--- coverage directory listing (recursive) ---'
+          ls -la coverage || true
+          find coverage -type f -maxdepth 3 -exec ls -l {} \; || true
+
+      - name: Create per-file coverage summary JSON
+        if: always()
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const p = 'coverage/lcov.info';
+          if (!fs.existsSync(p)) process.exit(0);
+          const s = fs.readFileSync(p,'utf8');
+          const lines = s.split(/\r?\n/);
+          const out = {};
+          let cur = null;
+          for (const l of lines) {
+            if (l.startsWith('SF:')) { cur = l.slice(3); }
+            else if (l.startsWith('LH:') && cur) { out[cur] = Number(l.slice(3)); cur = null; }
+          }
+          fs.mkdirSync('coverage', { recursive: true });
+          fs.writeFileSync('coverage/coverage_summary.json', JSON.stringify(out, null, 2));
+          console.log('Wrote coverage/coverage_summary.json with', Object.keys(out).length, 'entries');
+          NODE
+
+      - name: Upload coverage summary JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-summary-json
+          path: coverage/coverage_summary.json
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage
+            coverage/**
+      
+      - name: Debug workspace before upload
+        if: always()
+        run: |
+          echo '--- pwd ---'
+          pwd
+          echo '--- root listing (top 5) ---'
+          ls -la | head -n 50 || true
+          echo '--- find . (coverage related files) ---'
+          find . -maxdepth 5 -type f -name 'lcov.info' -o -name 'coverage_summary.json' -o -path './coverage/*' -print || true
+          echo '--- disk usage for coverage dir (if exists) ---'
+          du -sh coverage || true

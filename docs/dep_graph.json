@@ -28,6 +28,15 @@
       "title": "explain.js\nfanIn: 1 fanOut: 0"
     },
     {
+      "id": "src/api/workflows.js",
+      "label": "workflows.js",
+      "fanIn": 0,
+      "fanOut": 2,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "workflows.js\nfanIn: 0 fanOut: 2"
+    },
+    {
       "id": "src/components/InviteUserPanel.jsx",
       "label": "InviteUserPanel.jsx",
       "fanIn": 0,
@@ -55,6 +64,15 @@
       "title": "AuthContext.jsx\nfanIn: 1 fanOut: 0"
     },
     {
+      "id": "src/db/knex.js",
+      "label": "knex.js",
+      "fanIn": 3,
+      "fanOut": 1,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "knex.js\nfanIn: 3 fanOut: 1"
+    },
+    {
       "id": "src/graph/analysis.js",
       "label": "analysis.js",
       "fanIn": 2,
@@ -80,6 +98,42 @@
       "color": "#9ACD32",
       "group": "src",
       "title": "metrics.js\nfanIn: 1 fanOut: 1"
+    },
+    {
+      "id": "src/migration/runner.js",
+      "label": "runner.js",
+      "fanIn": 0,
+      "fanOut": 0,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "runner.js\nfanIn: 0 fanOut: 0"
+    },
+    {
+      "id": "src/models/index.js",
+      "label": "index.js",
+      "fanIn": 2,
+      "fanOut": 2,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "index.js\nfanIn: 2 fanOut: 2"
+    },
+    {
+      "id": "src/models/runModel.js",
+      "label": "runModel.js",
+      "fanIn": 1,
+      "fanOut": 1,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "runModel.js\nfanIn: 1 fanOut: 1"
+    },
+    {
+      "id": "src/models/workflowModel.js",
+      "label": "workflowModel.js",
+      "fanIn": 1,
+      "fanOut": 1,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "workflowModel.js\nfanIn: 1 fanOut: 1"
     },
     {
       "id": "src/parser/astParser.js",
@@ -116,6 +170,15 @@
       "color": "#9ACD32",
       "group": "src",
       "title": "fs.js\nfanIn: 2 fanOut: 0"
+    },
+    {
+      "id": "src/workflow/runner.js",
+      "label": "runner.js",
+      "fanIn": 1,
+      "fanOut": 1,
+      "color": "#9ACD32",
+      "group": "src",
+      "title": "runner.js\nfanIn: 1 fanOut: 1"
     },
     {
       "id": "src/context/__tests__/authApi.test.js",
@@ -165,6 +228,14 @@
       "to": "src/ai/explain.js"
     },
     {
+      "from": "src/api/workflows.js",
+      "to": "src/models/index.js"
+    },
+    {
+      "from": "src/api/workflows.js",
+      "to": "src/workflow/runner.js"
+    },
+    {
       "from": "src/components/InviteUserPanel.jsx",
       "to": "src/context/authApi.js"
     },
@@ -173,12 +244,36 @@
       "to": "src/context/AuthContext.jsx"
     },
     {
+      "from": "src/db/knex.js",
+      "to": "src/db/knex.js"
+    },
+    {
       "from": "src/metrics/metrics.js",
       "to": "src/graph/analysis.js"
     },
     {
+      "from": "src/models/index.js",
+      "to": "src/models/workflowModel.js"
+    },
+    {
+      "from": "src/models/index.js",
+      "to": "src/models/runModel.js"
+    },
+    {
+      "from": "src/models/runModel.js",
+      "to": "src/db/knex.js"
+    },
+    {
+      "from": "src/models/workflowModel.js",
+      "to": "src/db/knex.js"
+    },
+    {
       "from": "src/parser/astParser.js",
       "to": "src/utils/fs.js"
+    },
+    {
+      "from": "src/workflow/runner.js",
+      "to": "src/models/index.js"
     },
     {
       "from": "src/context/__tests__/authApi.test.js",

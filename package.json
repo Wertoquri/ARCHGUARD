@@ -15,6 +15,9 @@
     "prepare": "husky install",
     "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix",
     "test": "vitest run",
+    "coverage": "nyc --silent node scripts/coverage_wrapper.js",
+    "collect:browser-coverage": "node scripts/collect_browser_coverage.js",
+    "demo": "node scripts/demo_run.js",
     "analyze": "node src/cli.js --policy examples/policy.yaml --out findings.json --fail-on high",
     "analyze:ai": "node src/cli.js --policy examples/policy.yaml --out findings.json --ai-summary ai_summary.txt",
     "analyze:cli": "node src/cli.js",
@@ -23,50 +26,53 @@
     "depgraph:render": "node scripts/render_dep_graph.js",
     "depgraph:all": "npm run depgraph && npm run depgraph:render",
     "baseline:apply": "node scripts/apply_baseline.js",
-    "baseline:suggest": "node scripts/suggest_baseline.js"
-    ,"ownership:apply": "node scripts/apply_ownership.js"
-    ,"trend:snapshot": "node scripts/snapshot_trends.js"
-    ,"test:policy": "vitest run test/policy_framework.test.js"
-    ,"policy:simulate": "node scripts/simulate_policy.js"
-    ,"dependency:usage": "node scripts/build_dependency_usage.js"
-    ,"sbom:correlate": "node scripts/correlate_sbom_risk.js"
-    ,"pr:annotate": "node scripts/emit_pr_annotations.js"
-    ,"policy:pack:strict": "node src/cli.js --policy policy-packs/strict.yaml --out tmp/findings.strict.json --fail-on high"
-    ,"policy:pack:legacy-safe": "node src/cli.js --policy policy-packs/legacy-safe.yaml --out tmp/findings.legacy-safe.json --fail-on high"
-    ,"policy:pack:frontend-heavy": "node src/cli.js --policy policy-packs/frontend-heavy.yaml --out tmp/findings.frontend-heavy.json --fail-on high"
-    ,"doctor": "node src/cli.js --doctor"
-    ,"init": "node src/cli.js --init"
-    ,"explain": "node src/cli.js --policy examples/policy.yaml --explain"
-    ,"policy-ui": "node scripts/serve_policy_ui.js"
-    ,"findings-ui": "node scripts/serve_policy_ui.js"
-    ,"figma-ui:dev": "npm --prefix FigmaUI run dev"
-    ,"figma-ui:build": "npm --prefix FigmaUI run build"
-    ,"figma-ui:install": "npm --prefix FigmaUI install"
-    ,"ci:ui-test": "node scripts/ci_ui_test_runner.js"
+    "baseline:suggest": "node scripts/suggest_baseline.js",
+    "ownership:apply": "node scripts/apply_ownership.js",
+    "trend:snapshot": "node scripts/snapshot_trends.js",
+    "test:policy": "vitest run test/policy_framework.test.js",
+    "policy:simulate": "node scripts/simulate_policy.js",
+    "dependency:usage": "node scripts/build_dependency_usage.js",
+    "sbom:correlate": "node scripts/correlate_sbom_risk.js",
+    "pr:annotate": "node scripts/emit_pr_annotations.js",
+    "policy:pack:strict": "node src/cli.js --policy policy-packs/strict.yaml --out tmp/findings.strict.json --fail-on high",
+    "policy:pack:legacy-safe": "node src/cli.js --policy policy-packs/legacy-safe.yaml --out tmp/findings.legacy-safe.json --fail-on high",
+    "policy:pack:frontend-heavy": "node src/cli.js --policy policy-packs/frontend-heavy.yaml --out tmp/findings.frontend-heavy.json --fail-on high",
+    "doctor": "node src/cli.js --doctor",
+    "init": "node src/cli.js --init",
+    "explain": "node src/cli.js --policy examples/policy.yaml --explain",
+    "policy-ui": "node scripts/serve_policy_ui.js",
+    "findings-ui": "node scripts/serve_policy_ui.js",
+    "figma-ui:dev": "npm --prefix FigmaUI run dev",
+    "figma-ui:build": "npm --prefix FigmaUI run build",
+    "figma-ui:install": "npm --prefix FigmaUI install",
+    "ci:ui-test": "node scripts/ci_ui_test_runner.js"
   },
-  
   "devDependencies": {
-    "vitest": "^1.0.0",
-    "puppeteer": "^21.0.0",
+    "c8": "^10.1.3",
+    "nyc": "^15.1.0",
+    "v8-to-istanbul": "^9.0.0",
+    "eslint": "^8.45.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-import": "^2.27.5",
     "express": "^4.18.2",
-    "eslint": "^8.50.0",
-    "prettier": "^2.8.8",
     "husky": "^8.0.0",
-    "lint-staged": "^14.0.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-import": "^2.27.5"
+    "lint-staged": "^16.2.7",
+    "prettier": "^2.8.8",
+    "puppeteer": "^24.37.3",
+    "vitest": "^4.0.18"
   },
   "dependencies": {
+    "ajv": "^8.12.0",
     "commander": "^12.0.0",
     "fast-glob": "^3.3.2",
+    "knex": "^2.5.1",
     "minimatch": "^9.0.3",
-    "ajv": "^8.12.0",
+    "multer": "^2.0.2",
+    "mysql2": "^3.3.0",
     "typescript": "^5.4.0",
-    "yaml": "^2.4.1"
-    ,
-    "multer": "^1.4.4"
-  }
-  ,
+    "yaml": "^2.4.1",
+    "node-fetch": "^3.3.2"
+  },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": [
       "eslint --fix",
