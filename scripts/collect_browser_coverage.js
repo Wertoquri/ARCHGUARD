@@ -307,6 +307,29 @@ async function run() {
                 const mapText = await mapRes.text();
                 const mapOut = outPath + '.map';
                 fs.writeFileSync(mapOut, mapText, 'utf8');
+
+                // attempt to fetch original sources listed in the source map
+                try {
+                  const mapObj = JSON.parse(mapText);
+                  const sources = Array.isArray(mapObj.sources) ? mapObj.sources : [];
+                  const sourceRoot = mapObj.sourceRoot || '';
+                  for (const src of sources) {
+                    try {
+                      // resolve source against the map location
+                      const srcUrl = new URL(src, resolved).toString();
+                      const safeSrcName = src.replace(/[:\\/*?"<>|]/g, '_');
+                      const srcOut = path.join(sourcesDir, safeSrcName);
+                      if (fs.existsSync(srcOut)) continue;
+                      const srcRes = await fetch(srcUrl);
+                      if (srcRes.ok) {
+                        const srcText = await srcRes.text();
+                        fs.writeFileSync(srcOut, srcText, 'utf8');
+                      }
+                    } catch (e) {
+                      // ignore individual source fetch failures
+                    }
+                  }
+                } catch (e) {}
               }
             } catch (e) {
               // ignore map fetch errors
