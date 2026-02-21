@@ -214,6 +214,15 @@ async function run() {
       const scriptUrl = entry.url || entry.scriptId || '';
       if (!scriptUrl || scriptUrl === '') continue;
 
+      // ignore puppeteer internal/instrumentation scripts which don't map to real source files
+      if (typeof scriptUrl === 'string' && scriptUrl.startsWith('pptr:')) {
+        // allow pptr:...file:// mappings to be handled below, but skip simple pptr:internal entries
+        if (!scriptUrl.includes('file://')) {
+          // console.debug('Skipping puppeteer internal script', scriptUrl);
+          continue;
+        }
+      }
+
       // try local mapping first
       let localFile = findLocalBuildFile(scriptUrl);
 
@@ -326,10 +335,10 @@ async function run() {
         };
 
         const normalized = normalizeEntry(entry);
-        const blocksToApply = (normalized.functions || []).map((f) => ({ functionName: f.functionName || '(anonymous)', ranges: f.ranges || [], isBlockCoverage: !!f.isBlockCoverage }));
         console.log('Converting', localFile, 'functions=', Array.isArray(normalized.functions) ? normalized.functions.length : 0, 'firstRangesIsArray=', Array.isArray(normalized.functions && normalized.functions[0] && normalized.functions[0].ranges));
+        // Pass the full normalized entry (or wrapped) to applyCoverage — v8-to-istanbul expects entries with scriptId/url/functions
         // eslint-disable-next-line no-await-in-loop
-        await tryApply(blocksToApply).catch((err) => {
+        await tryApply(normalized).catch((err) => {
           console.warn('applyCoverage failed for', localFile, 'error:', err && err.message ? err.message : err);
           if (normalized && normalized.functions && normalized.functions.length) {
             try {
