@@ -61,12 +61,6 @@ jobs:
           # run CommonJS helper to avoid shell quoting issues
           node scripts/generate_coverage_summary.cjs || true
 
-      - name: Remove debug coverage artifacts
-        if: steps.check_figma.outputs.figma_present == 'true'
-        run: |
-          rm -rf .nyc_output/debug-*.json || true
-          rm -rf .nyc_output/sources || true
-
       - name: Upload coverage artifact
         if: steps.check_figma.outputs.figma_present == 'true'
         uses: actions/upload-artifact@v4
@@ -75,6 +69,16 @@ jobs:
           path: |
             coverage
             coverage/**
+            .nyc_output
+            .nyc_output/**
+            .nyc_debug
+            .nyc_debug/**
+
+      - name: Remove debug coverage artifacts
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: |
+          rm -rf .nyc_output/debug-*.json || true
+          rm -rf .nyc_output/sources || true
 
       - name: Skip UI tests message
         if: steps.check_figma.outputs.figma_present == 'false'
