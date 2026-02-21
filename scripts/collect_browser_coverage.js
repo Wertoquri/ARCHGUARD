@@ -264,10 +264,12 @@ async function run() {
     // put fetched sources and debug dumps outside of .nyc_output so nyc won't try to parse them
     const sourcesDir = path.resolve(process.cwd(), '.nyc_debug', 'sources');
     if (!fs.existsSync(sourcesDir)) fs.mkdirSync(sourcesDir, { recursive: true });
+    const mappingLogs = [];
 
     for (const entry of v8Coverage) {
       const scriptUrl = entry.url || entry.scriptId || '';
       if (!scriptUrl || scriptUrl === '') continue;
+      const mappingAttempt = { scriptUrl, attemptedAt: new Date().toISOString(), mappedBy: null, localFile: null, fetched: null, pptrFile: null, converterSuccess: false, applyCoverageError: null, notes: [] };
 
       // ignore puppeteer internal/instrumentation scripts which don't map to real source files
       if (typeof scriptUrl === 'string' && scriptUrl.startsWith('pptr:')) {
@@ -280,6 +282,7 @@ async function run() {
 
       // try local mapping first
       let localFile = findLocalBuildFile(scriptUrl);
+      if (localFile) { mappingAttempt.mappedBy = 'local-build-file'; mappingAttempt.localFile = localFile; }
 
       // helper to write fetched remote script to .nyc_output/sources
       async function fetchAndSave(urlStr) {
@@ -352,6 +355,7 @@ async function run() {
             }
           }
         } catch (e) {}
+        if (localFile) { mappingAttempt.mappedBy = 'pptr-file'; mappingAttempt.pptrFile = localFile; }
       }
 
       if (!localFile) {
@@ -360,7 +364,8 @@ async function run() {
           if (scriptUrl.startsWith('http:') || scriptUrl.startsWith('https:')) {
             // eslint-disable-next-line no-await-in-loop
             const fetched = await fetchAndSave(scriptUrl);
-            if (fetched) localFile = fetched;
+            mappingAttempt.fetched = fetched || null;
+            if (fetched) { localFile = fetched; mappingAttempt.mappedBy = 'fetched'; mappingAttempt.localFile = fetched; }
           }
         } catch (e) {}
       }
@@ -375,6 +380,8 @@ async function run() {
           } catch (e) {}
         } catch (e) {}
         console.warn('Could not map served URL to local file and fetch failed:', scriptUrl);
+        mappingAttempt.notes.push('mapping-failed');
+        mappingLogs.push(mappingAttempt);
         continue;
       }
 
@@ -424,19 +431,23 @@ async function run() {
         const blocksToApply = (normalized.functions || []).map((f) => ({ functionName: f.functionName || '(anonymous)', ranges: f.ranges || [], isBlockCoverage: !!f.isBlockCoverage }));
         console.log('Converting', localFile, 'functions=', blocksToApply.length, 'firstRangesIsArray=', Array.isArray(blocksToApply[0] && blocksToApply[0].ranges));
         // eslint-disable-next-line no-await-in-loop
-        await tryApply(blocksToApply).catch((err) => {
+        await tryApply(blocksToApply).then(() => {
+          mappingAttempt.converterSuccess = true;
+        }).catch((err) => {
           console.warn('applyCoverage failed for', localFile, 'error:', err && err.message ? err.message : err);
           if (normalized && normalized.functions && normalized.functions.length) {
             try {
               const sample = normalized.functions.slice(0,3).map(f => ({ functionName: f.functionName, rangesType: typeof f.ranges, rangesLen: Array.isArray(f.ranges) ? f.ranges.length : 0 }));
               console.warn('Sample functions:', JSON.stringify(sample));
             } catch (e) {}
-              try {
-                const debugPath = path.join(sourcesDir, 'debug-' + path.basename(localFile) + '-' + Date.now() + '.json');
-                fs.writeFileSync(debugPath, JSON.stringify(normalized, null, 2), 'utf8');
-                console.warn('Wrote debug normalized entry to', debugPath);
-              } catch (e) {}
+            try {
+              const debugPath = path.join(sourcesDir, 'debug-' + path.basename(localFile) + '-' + Date.now() + '.json');
+              fs.writeFileSync(debugPath, JSON.stringify(normalized, null, 2), 'utf8');
+              console.warn('Wrote debug normalized entry to', debugPath);
+            } catch (e) {}
           }
+          mappingAttempt.applyCoverageError = err && (err.message || (err.stack || String(err)));
+          mappingLogs.push(mappingAttempt);
           throw err;
         });
 
@@ -479,6 +490,7 @@ async function run() {
           // if normalization fails, avoid merging unknown shapes (would produce invalid keys like 'url'/'functions')
           console.warn('Could not normalize converter.toIstanbul output for', localFile, 'skipping. Error:', e && e.message ? e.message : e);
         }
+        mappingLogs.push(mappingAttempt);
       } catch (e) {
         console.warn('Failed converting', localFile, e && e.message ? e.message : e);
       }
@@ -491,6 +503,11 @@ async function run() {
     } else {
       console.log('No Istanbul coverage produced (no mappings found).');
     }
+    try {
+      const mapLogOut = path.join(path.resolve(process.cwd(), '.nyc_debug'), `mapping-${Date.now()}.json`);
+      fs.writeFileSync(mapLogOut, JSON.stringify(mappingLogs, null, 2), 'utf8');
+      console.log('Wrote mapping debug log to', mapLogOut);
+    } catch (e) {}
   } catch (e) {
     console.error('Failed to write coverage:', e && e.message ? e.message : e);
   }
