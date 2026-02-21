@@ -13,7 +13,19 @@ async function run() {
   await page.goto(url, { waitUntil: 'networkidle' });
 
   // wait for app to render
-  await page.waitForSelector('body', { timeout: 10000 }).catch(() => {});
+  await page.waitForSelector('body', { timeout: 15000 }).catch(() => {});
+
+  // navigate to a few likely app routes to exercise route-based code
+  const routes = ['/','/findings','/policy','/settings','/dashboard','/pr-review'];
+  for (const r of routes) {
+    try {
+      const dest = new URL(r, url).toString();
+      await page.goto(dest, { waitUntil: 'networkidle' });
+      await page.waitForTimeout(800).catch(() => {});
+    } catch (e) {
+      // ignore navigation failures
+    }
+  }
 
   // perform lightweight, tolerant interactions to exercise UI flows
   try {
