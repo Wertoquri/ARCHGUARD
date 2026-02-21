@@ -15,6 +15,8 @@ async function run() {
   // start PreciseCoverage via CDP (more reliable across Puppeteer versions)
   // Create CDP sessions for all current and future page targets so we capture coverage
   const sessions = new Map();
+  // also attempt Puppeteer's JS coverage API as a fallback (some Chromium builds provide it)
+  let jsCoverageEnabled = false;
   async function startCoverageForTarget(target) {
     try {
       if (target.type() !== 'page') return;
@@ -52,6 +54,16 @@ async function run() {
   browser.on('targetcreated', (t) => {
     startCoverageForTarget(t).catch(() => {});
   });
+
+  // Try to enable Puppeteer's page.coverage as an additional source of coverage
+  try {
+    if (page && page.coverage && typeof page.coverage.startJSCoverage === 'function') {
+      await page.coverage.startJSCoverage({ includeRawScriptCoverage: true });
+      jsCoverageEnabled = true;
+    }
+  } catch (e) {
+    // ignore if not available
+  }
 
   // navigate to the UI (assumes a local preview or static server is running)
   // use a valid Puppeteer waitUntil value
@@ -143,6 +155,24 @@ async function run() {
   // collect precise coverage from CDP
   // gather coverage from all sessions
   const allResults = [];
+  // if Puppeteer JS coverage was enabled, stop it and merge
+  if (jsCoverageEnabled) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      const jsCov = await page.coverage.stopJSCoverage();
+      if (Array.isArray(jsCov)) {
+        for (const item of jsCov) {
+          try {
+            const ranges = item.ranges || [];
+            const functions = [{ functionName: '(anonymous)', ranges: ranges.map(r => ({ startOffset: r.start || r.startOffset || 0, endOffset: r.end || r.endOffset || 0, count: r.count || 1 })) }];
+            allResults.push({ url: item.url || item.scriptId || '', functions });
+          } catch (e) {}
+        }
+      }
+    } catch (e) {
+      // ignore fallback failures
+    }
+  }
   for (const [t, s] of sessions) {
     try {
       // eslint-disable-next-line no-await-in-loop
