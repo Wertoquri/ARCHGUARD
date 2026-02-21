@@ -7,7 +7,6 @@ async function run() {
   // allow CI to override the preview URL; default matches FigmaUI preview used in CI
   const url = process.env.FIGMA_UI_URL || 'http://127.0.0.1:5175/figma-ui/';
   const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
-  const page = await browser.newPage();
 
   // small helper instead of `page.waitForTimeout` which may not exist in some Puppeteer builds
   const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
@@ -65,6 +64,9 @@ async function run() {
   browser.on('targetcreated', (t) => {
     startCoverageForTarget(t).catch(() => {});
   });
+
+  // create the test page after we've attached CDP sessions so we don't miss early scriptParsed events
+  const page = await browser.newPage();
 
   // Try to enable Puppeteer's page.coverage as an additional source of coverage
   try {
