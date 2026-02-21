@@ -1,13 +1,54 @@
 import puppeteer from 'puppeteer';
 import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 async function run() {
-  const url = process.env.FIGMA_UI_URL || 'http://127.0.0.1:5173/';
+  // allow CI to override the preview URL; default matches FigmaUI preview used in CI
+  const url = process.env.FIGMA_UI_URL || 'http://127.0.0.1:5175/figma-ui/';
   const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
   const page = await browser.newPage();
 
-  // start V8 coverage collection
-  await page.coverage.startJSCoverage({ includeRawScriptCoverage: true });
+  // start PreciseCoverage via CDP (more reliable across Puppeteer versions)
+  // Create CDP sessions for all current and future page targets so we capture coverage
+  const sessions = new Map();
+  async function startCoverageForTarget(target) {
+    try {
+      if (target.type() !== 'page') return;
+      const s = await target.createCDPSession();
+      // enable debugger to capture scriptParsed events and profiler for coverage
+      try {
+        await s.send('Debugger.enable');
+      } catch (e) {}
+      try {
+        await s.send('Profiler.enable');
+        await s.send('Profiler.startPreciseCoverage', { callCount: true, detailed: true });
+      } catch (e) {}
+      // record parsed scripts for mapping
+      sessions.set(target, s);
+      try {
+        s.on('Debugger.scriptParsed', (ev) => {
+          try {
+            // store parsed script urls on the session object
+            if (!s.__parsedScripts) s.__parsedScripts = new Set();
+            if (ev && ev.url) s.__parsedScripts.add(ev.url);
+          } catch (e) {}
+        });
+      } catch (e) {}
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // start for existing targets
+  for (const t of await browser.targets()) {
+    // eslint-disable-next-line no-await-in-loop
+    await startCoverageForTarget(t);
+  }
+  // start for any future targets (frames/pages)
+  browser.on('targetcreated', (t) => {
+    startCoverageForTarget(t).catch(() => {});
+  });
 
   // navigate to the UI (assumes a local preview or static server is running)
   // use a valid Puppeteer waitUntil value
@@ -96,15 +137,104 @@ async function run() {
     console.warn('UI interactions failed (tolerant):', e && e.message ? e.message : e);
   }
 
-  const v8Coverage = await page.coverage.stopJSCoverage();
+  // collect precise coverage from CDP
+  // gather coverage from all sessions
+  const allResults = [];
+  for (const [t, s] of sessions) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      const take = await s.send('Profiler.takePreciseCoverage');
+      // eslint-disable-next-line no-await-in-loop
+      await s.send('Profiler.stopPreciseCoverage');
+      // eslint-disable-next-line no-await-in-loop
+      await s.send('Profiler.disable');
+      if (take && take.result) allResults.push(...take.result);
+    } catch (e) {}
+  }
+  const v8Coverage = allResults;
   await browser.close();
 
   // write raw V8 coverage into .nyc_output so CI can inspect it.
   try {
     fs.mkdirSync('.nyc_output', { recursive: true });
-    const outPath = `.nyc_output/v8-coverage-${Date.now()}.json`;
-    fs.writeFileSync(outPath, JSON.stringify(v8Coverage), 'utf8');
-    console.log(`Browser V8 coverage written to ${outPath}`);
+    const rawOutPath = `.nyc_output/v8-coverage-${Date.now()}.json`;
+    fs.writeFileSync(rawOutPath, JSON.stringify(v8Coverage), 'utf8');
+    console.log(`Browser V8 coverage written to ${rawOutPath}`);
+
+    // try to convert V8 coverage -> Istanbul format using v8-to-istanbul
+    let v8ToIstanbulModule;
+    try {
+      v8ToIstanbulModule = await import('v8-to-istanbul');
+      // CJS default interop
+      v8ToIstanbulModule = v8ToIstanbulModule.default || v8ToIstanbulModule;
+    } catch (e) {
+      console.warn('v8-to-istanbul not installed; skipping conversion to Istanbul format.');
+      return;
+    }
+
+    // helper: try to map a served URL to a local file in FigmaUI/dist
+    function findLocalBuildFile(servedUrl) {
+      try {
+        const u = new URL(servedUrl);
+        let pathname = u.pathname || '';
+        // remove leading slash
+        pathname = pathname.replace(/^\//, '');
+        // if the app is served under a base (e.g. figma-ui/), remove it when mapping to dist
+        const basePrefix = 'figma-ui/';
+        if (pathname.startsWith(basePrefix)) pathname = pathname.slice(basePrefix.length);
+        const candidate = path.resolve(process.cwd(), 'FigmaUI', 'dist', pathname);
+        if (fs.existsSync(candidate)) return candidate;
+
+        // fallback: search by basename inside FigmaUI/dist
+        const basename = path.basename(pathname);
+        const distDir = path.resolve(process.cwd(), 'FigmaUI', 'dist');
+        const stack = [distDir];
+        while (stack.length) {
+          const cur = stack.pop();
+          try {
+            for (const ent of fs.readdirSync(cur, { withFileTypes: true })) {
+              const p = path.join(cur, ent.name);
+              if (ent.isDirectory()) stack.push(p);
+              else if (ent.isFile() && ent.name === basename) return p;
+            }
+          } catch (e) {}
+        }
+      } catch (e) {}
+      return null;
+    }
+
+    const istanbulCoverage = {};
+    for (const entry of v8Coverage) {
+      const scriptUrl = entry.url || entry.scriptId || '';
+      if (!scriptUrl || scriptUrl === '') continue;
+      const localFile = findLocalBuildFile(scriptUrl);
+      if (!localFile) {
+        console.warn('Could not map served URL to local file:', scriptUrl);
+        continue;
+      }
+
+      try {
+        const converter = v8ToIstanbulModule(localFile, 0, {});
+        // load file and source maps
+        // converter.load() returns a promise
+        // apply coverage and get istanbul format
+        // eslint-disable-next-line no-await-in-loop
+        await converter.load();
+        converter.applyCoverage(entry);
+        const fileCov = converter.toIstanbul();
+        Object.assign(istanbulCoverage, fileCov);
+      } catch (e) {
+        console.warn('Failed converting', localFile, e && e.message ? e.message : e);
+      }
+    }
+
+    if (Object.keys(istanbulCoverage).length > 0) {
+      const istanbulOut = `.nyc_output/istanbul-coverage-${Date.now()}.json`;
+      fs.writeFileSync(istanbulOut, JSON.stringify(istanbulCoverage), 'utf8');
+      console.log('Wrote Istanbul coverage for nyc to', istanbulOut);
+    } else {
+      console.log('No Istanbul coverage produced (no mappings found).');
+    }
   } catch (e) {
     console.error('Failed to write coverage:', e && e.message ? e.message : e);
   }
