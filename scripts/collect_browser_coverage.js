@@ -189,8 +189,10 @@ async function run() {
 
   // write raw V8 coverage into .nyc_output so CI can inspect it.
   try {
-    fs.mkdirSync('.nyc_output', { recursive: true });
-    const rawOutPath = `.nyc_output/v8-coverage-${Date.now()}.json`;
+    // save raw V8 coverage for debugging outside of .nyc_output so nyc doesn't attempt to parse it
+    const rawDir = path.resolve(process.cwd(), '.nyc_debug');
+    fs.mkdirSync(rawDir, { recursive: true });
+    const rawOutPath = path.join(rawDir, `v8-coverage-${Date.now()}.json`);
     fs.writeFileSync(rawOutPath, JSON.stringify(v8Coverage), 'utf8');
     console.log(`Browser V8 coverage written to ${rawOutPath}`);
 
@@ -218,6 +220,15 @@ async function run() {
         const candidate = path.resolve(process.cwd(), 'FigmaUI', 'dist', pathname);
         if (fs.existsSync(candidate)) return candidate;
 
+        // Common case: assets served from /figma-ui/assets/<name>
+        if (pathname.startsWith('assets/')) {
+          const assetCandidate = path.resolve(process.cwd(), 'FigmaUI', 'dist', pathname);
+          if (fs.existsSync(assetCandidate)) return assetCandidate;
+          const assetBasename = path.basename(pathname).split('?')[0];
+          const tryAsset = path.resolve(process.cwd(), 'FigmaUI', 'dist', 'assets', assetBasename);
+          if (fs.existsSync(tryAsset)) return tryAsset;
+        }
+
         // fallback: search by basename inside FigmaUI/dist using heuristics
         const basename = path.basename(pathname).split('?')[0];
         const token = basename.replace(/\.[^.]+$/, '');
@@ -235,8 +246,11 @@ async function run() {
               if (!ent.isFile()) continue;
               const name = ent.name;
               if (name === basename) return p; // exact match
-              if (name.startsWith(tokenPrefix)) startsWithMatches.push(p);
-              else if (name.includes(token)) includesMatches.push(p);
+              // case-insensitive checks and contains-any-token check
+              const lname = name.toLowerCase();
+              if (lname === basename.toLowerCase()) return p;
+              if (lname.startsWith(tokenPrefix.toLowerCase())) startsWithMatches.push(p);
+              else if (lname.includes(token.toLowerCase())) includesMatches.push(p);
             }
           } catch (e) {}
         }
@@ -247,7 +261,8 @@ async function run() {
     }
 
     const istanbulCoverage = {};
-    const sourcesDir = path.resolve('.nyc_output', 'sources');
+    // put fetched sources and debug dumps outside of .nyc_output so nyc won't try to parse them
+    const sourcesDir = path.resolve(process.cwd(), '.nyc_debug', 'sources');
     if (!fs.existsSync(sourcesDir)) fs.mkdirSync(sourcesDir, { recursive: true });
 
     for (const entry of v8Coverage) {
@@ -383,10 +398,10 @@ async function run() {
         };
 
         const normalized = normalizeEntry(entry);
-        console.log('Converting', localFile, 'functions=', Array.isArray(normalized.functions) ? normalized.functions.length : 0, 'firstRangesIsArray=', Array.isArray(normalized.functions && normalized.functions[0] && normalized.functions[0].ranges));
-        // Pass the full normalized entry (or wrapped) to applyCoverage — v8-to-istanbul expects entries with scriptId/url/functions
+        const blocksToApply = (normalized.functions || []).map((f) => ({ functionName: f.functionName || '(anonymous)', ranges: f.ranges || [], isBlockCoverage: !!f.isBlockCoverage }));
+        console.log('Converting', localFile, 'functions=', blocksToApply.length, 'firstRangesIsArray=', Array.isArray(blocksToApply[0] && blocksToApply[0].ranges));
         // eslint-disable-next-line no-await-in-loop
-        await tryApply(normalized).catch((err) => {
+        await tryApply(blocksToApply).catch((err) => {
           console.warn('applyCoverage failed for', localFile, 'error:', err && err.message ? err.message : err);
           if (normalized && normalized.functions && normalized.functions.length) {
             try {
@@ -403,7 +418,44 @@ async function run() {
         });
 
         const fileCov = converter.toIstanbul();
-        Object.assign(istanbulCoverage, fileCov);
+        // v8-to-istanbul may return either:
+        // - an object keyed by filename: { "/abs/path/file.js": { ... } }
+        // - or a single-file coverage object: { path: ..., statementMap: ..., s: ... }
+        // Normalize both cases and ensure nyc gets an object keyed by absolute POSIX paths.
+        try {
+          if (fileCov && typeof fileCov === 'object') {
+            const keys = Object.keys(fileCov);
+            const looksLikeWrapped = keys.length > 0 && keys.some(k => (k.includes('/') || k.includes('\\')) && (k.endsWith('.js') || k.endsWith('.ts') || k.endsWith('.tsx')));
+            const looksLikeSingle = ('path' in fileCov) && (fileCov.statementMap || fileCov.s || fileCov.fnMap);
+
+            if (looksLikeSingle) {
+              const abs = path.resolve(localFile);
+              const normalizedKey = abs.split(path.sep).join('/');
+              istanbulCoverage[normalizedKey] = fileCov;
+            } else if (looksLikeWrapped) {
+              for (const k of keys) {
+                try {
+                  const val = fileCov[k];
+                  // If key is not absolute, try to resolve relative to localFile
+                  let resolvedKey = k;
+                  if (!path.isAbsolute(k)) resolvedKey = path.resolve(path.dirname(localFile), k);
+                  const normalizedKey = resolvedKey.split(path.sep).join('/');
+                  istanbulCoverage[normalizedKey] = val;
+                } catch (e) {
+                  // skip individual key failures
+                }
+              }
+            } else {
+              // Fallback: attach under the discovered localFile path
+              const abs = path.resolve(localFile);
+              const normalizedKey = abs.split(path.sep).join('/');
+              istanbulCoverage[normalizedKey] = fileCov;
+            }
+          }
+        } catch (e) {
+          // if normalization fails, avoid merging unknown shapes (would produce invalid keys like 'url'/'functions')
+          console.warn('Could not normalize converter.toIstanbul output for', localFile, 'skipping. Error:', e && e.message ? e.message : e);
+        }
       } catch (e) {
         console.warn('Failed converting', localFile, e && e.message ? e.message : e);
       }
