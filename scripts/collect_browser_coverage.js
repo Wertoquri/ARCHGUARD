@@ -22,14 +22,19 @@ async function run() {
     try {
       if (target.type() !== 'page') return;
       const s = await target.createCDPSession();
-      // enable debugger to capture scriptParsed events and profiler for coverage
+      // enable runtime/debugger/profiler to capture scriptParsed events and precise coverage
+      try {
+        await s.send('Runtime.enable');
+      } catch (e) {}
       try {
         await s.send('Debugger.enable');
       } catch (e) {}
       try {
         await s.send('Profiler.enable');
         await s.send('Profiler.startPreciseCoverage', { callCount: true, detailed: true });
-      } catch (e) {}
+        s.__coverageStarted = true;
+        try { console.log('Started precise coverage on target', target.url ? target.url() : '<unknown>'); } catch (e) {}
+      } catch (e) { console.warn('Failed to start precise coverage on target', (target && target.url ? target.url() : '<unknown>'), e && e.message ? e.message : e); }
       // record parsed scripts for mapping
       sessions.set(target, s);
       try {
@@ -227,6 +232,16 @@ async function run() {
       await s.send('Profiler.disable');
       if (take1 && take1.result) allResults.push(...take1.result);
       if (take2 && take2.result) allResults.push(...take2.result);
+      // if no results were captured, log session details for debugging
+      try {
+        const total = (take1 && take1.result ? take1.result.length : 0) + (take2 && take2.result ? take2.result.length : 0);
+        if (!total) {
+          try {
+            const parsed = (s && s.__parsedScripts) ? Array.from(s.__parsedScripts).slice(0,50) : [];
+            console.warn('Session had no coverage results. parsedScriptsCount=', parsed.length, 'parsedSample=', JSON.stringify(parsed.slice(0,10)));
+          } catch (e) {}
+        }
+      } catch (e) {}
       try { console.log('Session coverage samples:', (take1 && take1.result ? take1.result.length : 0), (take2 && take2.result ? take2.result.length : 0)); } catch (e) {}
     } catch (e) {}
   }
