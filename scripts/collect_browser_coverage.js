@@ -6,7 +6,17 @@ import { fileURLToPath } from 'node:url';
 async function run() {
   // allow CI to override the preview URL; default matches FigmaUI preview used in CI
   const url = process.env.FIGMA_UI_URL || 'http://127.0.0.1:5175/figma-ui/';
-  const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+  // configure Puppeteer launch args; include extra flags in CI to improve stability
+  const launchArgs = ['--no-sandbox', '--disable-setuid-sandbox'];
+  if (process.env.CI === 'true' || process.env.GITHUB_ACTIONS) {
+    launchArgs.push('--disable-dev-shm-usage', '--single-process', '--no-zygote', '--disable-gpu');
+  }
+  if (process.env.CI_PUPPETEER_EXTRA_ARGS) {
+    try {
+      launchArgs.push(...process.env.CI_PUPPETEER_EXTRA_ARGS.split(/\s+/).filter(Boolean));
+    } catch (e) {}
+  }
+  const browser = await puppeteer.launch({ args: launchArgs });
 
   // small helper instead of `page.waitForTimeout` which may not exist in some Puppeteer builds
   const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
