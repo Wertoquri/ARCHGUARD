@@ -15,6 +15,8 @@ async function run() {
   // start PreciseCoverage via CDP (more reliable across Puppeteer versions)
   // Create CDP sessions for all current and future page targets so we capture coverage
   const sessions = new Map();
+   // record scriptParsed events for CI debugging
+   const parsedScriptEvents = [];
   // also attempt Puppeteer's JS coverage API as a fallback (some Chromium builds provide it)
   let jsCoverageEnabled = false;
   async function startCoverageForTarget(target) {
@@ -37,6 +39,10 @@ async function run() {
             // store parsed script urls on the session object
             if (!s.__parsedScripts) s.__parsedScripts = new Set();
             if (ev && ev.url) s.__parsedScripts.add(ev.url);
+              // also capture the event for later CI inspection
+              try {
+                parsedScriptEvents.push({ url: ev && ev.url ? ev.url : null, scriptId: ev && ev.scriptId ? ev.scriptId : null, timestamp: Date.now() });
+              } catch (ee) {}
           } catch (e) {}
         });
       } catch (e) {}
@@ -186,6 +192,14 @@ async function run() {
   }
   const v8Coverage = allResults;
   await browser.close();
+
+  // persist parsed script events for CI debugging
+  try {
+    const dbgDir = path.resolve(process.cwd(), '.nyc_debug');
+    try { fs.mkdirSync(dbgDir, { recursive: true }); } catch (e) {}
+    const parsedOut = path.join(dbgDir, `script-parsed-${Date.now()}.json`);
+    try { fs.writeFileSync(parsedOut, JSON.stringify(parsedScriptEvents, null, 2), 'utf8'); console.log('Wrote parsed script events to', parsedOut); } catch (e) {}
+  } catch (e) {}
 
   // emit compact debug info to job logs so CI shows whether any coverage was captured
   try {
