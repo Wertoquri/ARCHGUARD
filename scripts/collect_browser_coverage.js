@@ -158,6 +158,27 @@ async function run() {
     console.warn('UI interactions failed (tolerant):', e && e.message ? e.message : e);
   }
 
+  // snapshot page scripts and basic session info for CI debugging
+  try {
+    try {
+      const pageScripts = await page.evaluate(() => Array.from(document.scripts).map(s => ({ src: s.src || null, hasInline: !!(s.innerText || s.textContent), inlinePreview: (s.innerText || s.textContent || '').slice(0, 200) })));
+      const ua = await page.userAgent();
+      const snapshot = {
+        capturedAt: new Date().toISOString(),
+        url: page.url ? page.url() : (typeof window !== 'undefined' ? window.location.href : null),
+        userAgent: ua,
+        sessionsCount: sessions.size,
+        jsCoverageEnabled: !!jsCoverageEnabled,
+        parsedScriptEventsCount: parsedScriptEvents.length,
+        pageScripts
+      };
+      const dbgDir = path.resolve(process.cwd(), '.nyc_debug');
+      try { fs.mkdirSync(dbgDir, { recursive: true }); } catch (e) {}
+      const snapOut = path.join(dbgDir, `page-snapshot-${Date.now()}.json`);
+      try { fs.writeFileSync(snapOut, JSON.stringify(snapshot, null, 2), 'utf8'); console.log('Wrote page snapshot to', snapOut); } catch (e) {}
+    } catch (e) {}
+  } catch (e) {}
+
   // collect precise coverage from CDP
   // gather coverage from all sessions
   // add a short extra wait to give the page time to register scripts in CI
