@@ -10,7 +10,8 @@ async function run() {
   await page.coverage.startJSCoverage({ includeRawScriptCoverage: true });
 
   // navigate to the UI (assumes a local preview or static server is running)
-  await page.goto(url, { waitUntil: 'networkidle' });
+  // use a valid Puppeteer waitUntil value
+  await page.goto(url, { waitUntil: 'networkidle2' });
 
   // wait for app to render
   await page.waitForSelector('body', { timeout: 15000 }).catch(() => {});
@@ -20,7 +21,7 @@ async function run() {
   for (const r of routes) {
     try {
       const dest = new URL(r, url).toString();
-      await page.goto(dest, { waitUntil: 'networkidle' });
+      await page.goto(dest, { waitUntil: 'networkidle2' });
       await page.waitForTimeout(800).catch(() => {});
     } catch (e) {
       // ignore navigation failures
