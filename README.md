@@ -127,6 +127,64 @@ node scripts/run_workflow.js
 
 See `PRE_SUBMISSION_CHECKLIST.md` for steps to create a release bundle.
 
+## Docker (Install & Run)
+
+You can build and run ARCHGUARD using the production Dockerfile `Dockerfile.prod`.
+
+- Build the image:
+
+```bash
+docker build -t archguard:latest -f Dockerfile.prod .
+```
+
+- Run a single container (example using a local MySQL instance via host networking or `host.docker.internal`):
+
+```bash
+docker run -d --name archguard \
+  -p 5175:5175 \
+  -e MYSQL_HOST=host.docker.internal \
+  -e MYSQL_PORT=3306 \
+  -e MYSQL_USER=root \
+  -e MYSQL_PASSWORD=root \
+  -e MYSQL_DATABASE=ARCHGUARD \
+  archguard:latest
+```
+
+- Run using `docker-compose` (example `docker-compose.yml`):
+
+```yaml
+version: '3.8'
+services:
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ARCHGUARD
+    volumes:
+      - db-data:/var/lib/mysql
+  archguard:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - '5175:5175'
+    environment:
+      MYSQL_HOST: db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: ARCHGUARD
+volumes:
+  db-data:
+```
+
+- Start with:
+
+```bash
+docker-compose up -d
+```
+
+Adjust environment variables and volumes for production use (do not use default passwords).
+
 ## UI language localization
 
 - Default language is English.
