@@ -1,0 +1,18 @@
+FROM node:24-bullseye-slim
+WORKDIR /usr/src/app
+
+# Install production dependencies only
+COPY package*.json ./
+RUN npm ci --only=production --no-audit --no-fund --silent
+
+# Copy application files
+COPY . .
+
+# If the FigmaUI exists, build it (optional)
+RUN if [ -d FigmaUI ]; then npm --prefix FigmaUI ci --silent && npm --prefix FigmaUI run build --silent; fi
+
+EXPOSE 5175
+ENV PORT=5175
+
+# Default command runs the UI server; adjust for CLI usage as needed
+CMD ["node", "scripts/serve_policy_ui.js"]
