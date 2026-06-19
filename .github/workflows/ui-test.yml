@@ -31,6 +31,10 @@ jobs:
         if: steps.check_figma.outputs.figma_present == 'true'
         run: npm --prefix FigmaUI ci
 
+      - name: Install Chrome for Puppeteer
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: npx puppeteer browsers install chrome
+
       - name: Run UI integration test
         if: steps.check_figma.outputs.figma_present == 'true'
         run: npm run ci:ui-test
