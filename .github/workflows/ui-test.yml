@@ -15,8 +15,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Configure isolated Puppeteer cache
-        run: echo "PUPPETEER_CACHE_DIR=$RUNNER_TEMP/puppeteer" >> "$GITHUB_ENV"
       - name: Install repo dependencies
         run: npm ci
 
@@ -32,6 +30,10 @@ jobs:
       - name: Install Figma UI deps
         if: steps.check_figma.outputs.figma_present == 'true'
         run: npm --prefix FigmaUI ci
+
+      - name: Configure isolated Puppeteer cache
+        if: steps.check_figma.outputs.figma_present == 'true'
+        run: echo "PUPPETEER_CACHE_DIR=$RUNNER_TEMP/archguard-puppeteer" >> "$GITHUB_ENV"
 
       - name: Install Chrome for Puppeteer
         if: steps.check_figma.outputs.figma_present == 'true'
