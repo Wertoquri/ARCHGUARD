@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm --prefix FigmaUI ci",
+  "buildCommand": "npm --prefix FigmaUI run build",
+  "outputDirectory": "FigmaUI/dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
