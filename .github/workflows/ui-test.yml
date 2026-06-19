@@ -31,13 +31,12 @@ jobs:
         if: steps.check_figma.outputs.figma_present == 'true'
         run: npm --prefix FigmaUI ci
 
-      - name: Configure isolated Puppeteer cache
+      - name: Locate Chrome for Puppeteer
         if: steps.check_figma.outputs.figma_present == 'true'
-        run: echo "PUPPETEER_CACHE_DIR=$RUNNER_TEMP/archguard-puppeteer" >> "$GITHUB_ENV"
-
-      - name: Install Chrome for Puppeteer
-        if: steps.check_figma.outputs.figma_present == 'true'
-        run: npx puppeteer browsers install chrome
+        run: |
+          BROWSER_PATH="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium)"
+          test -n "$BROWSER_PATH"
+          echo "PUPPETEER_EXECUTABLE_PATH=$BROWSER_PATH" >> "$GITHUB_ENV"
 
       - name: Run UI integration test
         if: steps.check_figma.outputs.figma_present == 'true'
