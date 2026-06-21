@@ -20,6 +20,11 @@ docker compose up --build
 
 Open http://localhost:5175. The compose stack includes MySQL and the built dashboard.
 
+The public portfolio deployment uses one Render web service and a TiDB Cloud Starter
+database. Open `/figma-ui/` for the dashboard; `/api/health` is the deployment health
+check. The public demo keeps file saving, repository evaluation and GitHub workflow
+actions disabled so an anonymous visitor cannot mutate the hosted repository.
+
 ### Five-minute walkthrough
 
 1. Open **Findings** and explain severity, ownership and affected modules.
@@ -83,6 +88,19 @@ CI uses Node.js 22 consistently, validates the UI and production image, runs the
 ## Production configuration
 
 Copy `.env.example` and replace all credentials. Saving policy files and GitHub-triggering actions are disabled unless explicitly enabled with `POLICY_UI_ENABLE_SAVE=1` and `POLICY_UI_ENABLE_GITHUB=1`.
+
+### Free public deployment
+
+1. Create a free TiDB Cloud Starter cluster and run `npm run db:migrate` once with
+   its MySQL connection values.
+2. Push this repository to GitHub and create a Render Blueprint from `render.yaml`.
+3. Enter `MYSQL_HOST`, `MYSQL_USER`, and `MYSQL_PASSWORD` in Render. Keep
+   `MYSQL_SSL=true`; Render supplies `PORT` automatically.
+4. Use the Render URL as the client-facing demo URL. A free Render service sleeps
+   after inactivity, so its first request can take about a minute.
+
+Render's filesystem is ephemeral. The deployed demo is intentionally read-only;
+workflow records persist in TiDB, while uploaded or edited policy files do not.
 
 Detailed material:
 

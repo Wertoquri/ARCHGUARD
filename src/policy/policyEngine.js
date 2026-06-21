@@ -13,8 +13,7 @@
 
 import fs from 'node:fs';
 import Ajv from 'ajv';
-import * as minimatchPkg from 'minimatch';
-const minimatch = minimatchPkg?.default ?? minimatchPkg?.minimatch ?? minimatchPkg;
+import { minimatch } from 'minimatch';
 import YAML from 'yaml';
 
 const DEFAULT_SEVERITY = {

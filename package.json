@@ -45,7 +45,14 @@
     "figma-ui:dev": "npm --prefix FigmaUI run dev",
     "figma-ui:build": "npm --prefix FigmaUI run build",
     "figma-ui:install": "npm --prefix FigmaUI install",
-    "ci:ui-test": "node scripts/ci_ui_test_runner.js"
+    "ci:ui-test": "node scripts/ci_ui_test_runner.js",
+    "db:migrate": "node scripts/db_migrate.js",
+    "verify": "npm run lint && npm test && npm run figma-ui:build && npm audit --omit=dev && npm --prefix FigmaUI audit --omit=dev",
+    "render:build": "npm ci && npm --prefix FigmaUI ci && npm run figma-ui:build",
+    "render:start": "npm run db:migrate && node scripts/serve_policy_ui.js"
+  },
+  "engines": {
+    "node": ">=22 <23"
   },
   "devDependencies": {
     "c8": "^10.1.3",
