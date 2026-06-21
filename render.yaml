@@ -9,6 +9,8 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 22.22.0
+      - key: VITE_BASE_PATH
+        value: /figma-ui/
       - key: MYSQL_HOST
         sync: false
       - key: MYSQL_PORT
