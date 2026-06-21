@@ -10,6 +10,7 @@ import { createRequire } from 'module';
 import registerWorkflowsApi from '../src/api/workflows.js';
 
 const app = express();
+app.set('trust proxy', 1);
 app.use(express.json({ limit: '1mb' }));
 const port = process.env.PORT || 5174;
 
@@ -17,7 +18,11 @@ const uiDir = path.join(process.cwd(), 'policy-ui');
 const findingsUiDir = path.join(process.cwd(), 'findings-ui');
 const figmaUiDistDir = path.join(process.cwd(), 'FigmaUI', 'dist');
 
-app.use(express.static(uiDir));
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, service: 'archguard', uptimeSeconds: Math.round(process.uptime()) });
+});
+app.get('/', (req, res) => res.redirect('/figma-ui/'));
+app.use('/policy-ui', express.static(uiDir));
 app.use('/findings-ui', express.static(findingsUiDir));
 app.use('/figma-ui', express.static(figmaUiDistDir));
 

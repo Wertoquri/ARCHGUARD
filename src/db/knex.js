@@ -6,6 +6,7 @@ const DB_PORT = process.env.MYSQL_PORT ? Number(process.env.MYSQL_PORT) : 3306;
 const DB_USER = process.env.MYSQL_USER || 'root';
 const DB_PASSWORD = process.env.MYSQL_PASSWORD || '';
 const DB_NAME = process.env.MYSQL_DATABASE || 'archguard';
+const DB_SSL = process.env.MYSQL_SSL === 'true';
 
 const knex = knexLib({
   client: 'mysql2',
@@ -16,6 +17,7 @@ const knex = knexLib({
     password: DB_PASSWORD,
     database: DB_NAME,
     charset: 'utf8mb4',
+    ...(DB_SSL ? { ssl: { minVersion: 'TLSv1.2', rejectUnauthorized: true } } : {}),
   },
   pool: { min: 0, max: 10 },
 });
